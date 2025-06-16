@@ -1,82 +1,84 @@
-#include <SFML/Graphics.hpp>
-#include "MapLoader.hpp"
-#include "Utils.hpp"
-#include "HexCell.hpp"
-#include <vector>
-#include <iostream>
+#include <SFML/Graphics.hpp> 
+#include "utils/MapLoader.hpp" 
+#include "utils/Utils.hpp" 
+#include "model/HexCell.hpp" 
+#include "model/HexGrid.hpp" 
+#include "model/Player.hpp" 
+#include "core/GameLogic.hpp" 
+#include "render/Renderer.hpp" 
 
-#define WINDOW_WIDTH 1280
-#define WINDOW_HEIGHT 720
+// Definición de constantes para la ventana y recursos
+#define WINDOW_WIDTH 750 
+#define WINDOW_HEIGHT 500 
+#define MAP_PATH "resources/map.txt" // Ruta al archivo del mapa
+#define FONT_PATH "resources/arial.ttf" // Ruta al archivo de la fuente
 
-#define HEXAGON_RADIUS 25
-#define HEXAGON_OUTLINE_THICKNESS 4
-
-#define MAP_PATH "resources/map.txt"
-#define FONT_PATH "resources/arial.ttf"
+using namespace model; 
+using namespace sf;
 
 int main()
 {
-	// Inicializar las celdas del grid
-	std::vector<std::vector<HexCell>> grid = loadMapFromFile(MAP_PATH);
+    // Cargar mapa desde archivo
+    HexGrid grid = loadHexGridFromFile(MAP_PATH); 
+    // Se carga el grid hexagonal desde el archivo especificado en MAP_PATH.
+    // La función `loadHexGridFromFile` devuelve un objeto `HexGrid` inicializado.
 
+    // Obtener celda de inicio
+    HexCell *start = findStartCell(grid); 
+    // Busca la celda de inicio (de tipo START) en el grid.
+    // Si no se encuentra, devuelve nullptr.
 
-	// Crear un objeto de tipo sf::CircleShape para representar un hexágono
-	sf::CircleShape hexagon(HEXAGON_RADIUS, 6);
-	hexagon.setOutlineColor(sf::Color::Black);
-	hexagon.setFillColor(sf::Color::White);
-	hexagon.setOrigin(HEXAGON_RADIUS, HEXAGON_RADIUS);
-	hexagon.setOutlineThickness(HEXAGON_OUTLINE_THICKNESS);
-	sf::Color color[2] = { sf::Color(220,220,220), sf::Color(192,192,192) };
+    if (!start) // Si no se encuentra la celda de inicio, termina el programa con un código de error.
+        return 1;
 
-	// Crear una ventana de SFML
-	sf::RenderWindow window({ WINDOW_WIDTH, WINDOW_HEIGHT }, "Hexagons", sf::Style::Titlebar | sf::Style::Close, sf::ContextSettings(0, 0, 8));
+    // Crear el jugador en la posición inicial
+    Player player(start->row, start->col); 
+    // Inicializa al jugador en la fila y columna de la celda de inicio.
 
-	sf::Font font;
-	if (!font.loadFromFile(FONT_PATH)) {
-		std::cerr << "No se pudo cargar la fuente.\n";
-	}
-	sf::Text texto = createText(font, 16, sf::Color::Black);
+    // Crear la ventana de renderizado
+    RenderWindow window({WINDOW_WIDTH, WINDOW_HEIGHT}, "Game", Style::Titlebar | Style::Close);
+    // Crea una ventana de SFML con las dimensiones especificadas y el título "Hexagons".
 
-	// Ciclo principal
-	while (window.isOpen())
-	{
-		sf::Event event;
-		while (window.pollEvent(event))
-		{
-			if (event.type == sf::Event::Closed)
-				window.close();
+    // Cargar la fuente para el texto
+    Font font;
+    if (!font.loadFromFile(FONT_PATH)) // Intenta cargar la fuente desde el archivo especificado en FONT_PATH.
+    {
+        return 1; // Si no se puede cargar la fuente, termina el programa con un código de error.
+    }
 
-		}
+    // Crear elementos gráficos
+    Text texto = createText(font, 16, Color::Black); 
+    // Crea un objeto de texto con la fuente cargada, tamaño 16 y color negro.
+    CircleShape hexagon = createHexagon(); 
+    // Crea un hexágono que se usará para renderizar las celdas del grid.
 
+    // Bucle principal del juego
+    while (window.isOpen()) // Mientras la ventana esté abierta
+    {
+        Event event; // Objeto para manejar eventos de la ventana
+        while (window.pollEvent(event)) // Procesa todos los eventos en la cola
+        {
+            if (event.type == Event::Closed) // Si se cierra la ventana
+                window.close(); // Cierra la ventana
+            if (event.type == Event::KeyPressed) // Si se presiona una tecla
+                handlePlayerMovement(event.key.code, player, grid); 
+                // Llama a la función `handlePlayerMovement` para mover al jugador
+                // según la tecla presionada.
+        }
 
-		// Logica del juego
+        // Aplicar efecto de bandas transportadoras
+        handleConveyorMovement(player, grid); 
+        // Si el jugador está sobre una celda de tipo banda transportadora,
+        // mueve automáticamente al jugador a la celda correspondiente.
 
+        // Renderizar el contenido de la ventana
+        window.clear(Color::Black); 
+        // Limpia la ventana con un color blanco de fondo.
+        drawGrid(window, grid, player, hexagon, texto); 
+        // Dibuja el grid hexagonal, el jugador y otros elementos en la ventana.
+        window.display(); 
+        // Muestra el contenido renderizado en la ventana.
+    }
 
-
-		// Desde aqui, logica del dibujo
-		window.clear(sf::Color::White);
-
-
-		// Dibujar el grid de hexágonos
-		for (int y = 0; y <= grid.size() - 1; ++y) {
-			for (int x = 0; x <= grid[y].size() - 1; ++x) {
-
-				// Ajustar la posición del hexágono según las coordenadas x, y
-				hexagon.setPosition((y % 2 ? 75 : 50) + x * 50.f, 50 + y * 40.f);
-				hexagon.setFillColor(color[y % 2]);
-				window.draw(hexagon);
-
-				texto.setString(CellTypeToString(grid[y][x].type));
-				texto.setPosition((y % 2 ? 65 : 40) + x * 50.f, 45 + y * 40.f);
-				window.draw(texto);
-			}
-		}
-
-		window.display();
-
-	}
-
+    return 0; 
 }
-
-
-
