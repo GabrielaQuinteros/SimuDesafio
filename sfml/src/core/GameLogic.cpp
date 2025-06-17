@@ -4,9 +4,16 @@
 #include "model/Player.hpp"
 #include <SFML/System.hpp>
 #include <iostream>
+#include <random>
+#include <vector>
 
 using namespace model;
 using namespace sf;
+
+// Variables globales para el sistema de turnos
+static int turnCounter = 0;
+static const int TURNS_PER_WALL = 5; // Cada 5 turnos aparece un nuevo muro
+static std::mt19937 rng(std::random_device{}()); // Generador de números aleatorios
 
 HexCell *findStartCell(HexGrid &grid)
 {
@@ -24,7 +31,66 @@ HexCell *findStartCell(HexGrid &grid)
     return nullptr;
 }
 
-void handlePlayerMovement(Keyboard::Key key, Player &player, const HexGrid &grid)
+// Función para encontrar todas las celdas disponibles para colocar muros
+std::vector<std::pair<int, int>> findAvailableCells(const HexGrid &grid, const Player &player)
+{
+    std::vector<std::pair<int, int>> availableCells;
+    
+    for (int row = 0; row < grid.rows(); ++row)
+    {
+        for (int col = 0; col < grid.cols(); ++col)
+        {
+            const HexCell &cell = grid.at(row, col);
+            if (cell.type != CellType::WALL && 
+                cell.type != CellType::START && 
+                !(row == player.row && col == player.col))
+            {
+                availableCells.push_back({row, col});
+            }
+        }
+    }
+    
+    return availableCells;
+}
+
+// Función para generar un nuevo muro en una posición aleatoria
+void generateRandomWall(HexGrid &grid, const Player &player)
+{
+    std::vector<std::pair<int, int>> availableCells = findAvailableCells(grid, player);
+    
+    if (availableCells.empty())
+    {
+        std::cout << "No hay celdas disponibles para colocar un nuevo muro.\n";
+        return;
+    }
+    
+    // Seleccionar una celda aleatoria
+    std::uniform_int_distribution<int> dist(0, availableCells.size() - 1);
+    int randomIndex = dist(rng);
+    
+    auto [row, col] = availableCells[randomIndex];
+    
+    // Cambiar el tipo de celda a WALL
+    grid.at(row, col).type = CellType::WALL;
+    
+    std::cout << "¡Nuevo muro generado en posición (" << row << ", " << col << ")!\n";
+}
+
+// Función para manejar el sistema de turnos
+void handleTurnSystem(HexGrid &grid, const Player &player)
+{
+    turnCounter++;
+    
+    std::cout << "Turno: " << turnCounter << std::endl;
+    
+    // Verificar si es momento de generar un nuevo muro
+    if (turnCounter % TURNS_PER_WALL == 0)
+    {
+        generateRandomWall(grid, player);
+    }
+}
+
+void handlePlayerMovement(Keyboard::Key key, Player &player, HexGrid &grid)
 {
     // No permitir movimiento manual si el jugador está siendo animado
     if (player.isMoving)
@@ -93,6 +159,9 @@ void handlePlayerMovement(Keyboard::Key key, Player &player, const HexGrid &grid
             //Actualiza las nueva posición en el grid
             player.row = newRow;
             player.col = newCol;
+            
+            // ¡IMPORTANTE! Manejar el sistema de turnos después de un movimiento exitoso
+            handleTurnSystem(grid, player);
         }
     }
 }
@@ -133,6 +202,21 @@ void handleConveyorMovement(Player &player, const HexGrid &grid)
             player.lastCellType = current.type;
             player.row = newRow;
             player.col = newCol;
+            
+            // Nota: El movimiento por banda transportadora NO cuenta como turno
+            // ya que es automático, no una acción del jugador
         }
     }
+}
+
+// Función auxiliar para obtener el contador de turnos actual
+int getCurrentTurnCount()
+{
+    return turnCounter;
+}
+
+// Función auxiliar para resetear el contador de turnos (útil para reiniciar el juego)
+void resetTurnCounter()
+{
+    turnCounter = 0;
 }
