@@ -22,6 +22,7 @@ add_executable(main
 
     # Core (lógica del juego)
     src/core/GameLogic.cpp
+    src/core/TurnSystem.cpp
 
     # Render
     src/render/Renderer.cpp
