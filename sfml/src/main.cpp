@@ -1,3 +1,4 @@
+#include <string>  // Agregar esta línea al inicio
 #include <SFML/Graphics.hpp> 
 #include "utils/MapLoader.hpp" 
 #include "utils/Utils.hpp" 
@@ -11,86 +12,76 @@
 // Definición de constantes para la ventana y recursos
 #define WINDOW_WIDTH 750 
 #define WINDOW_HEIGHT 500 
-#define MAP_PATH "resources/map.txt" // Ruta al archivo del mapa
-#define FONT_PATH "resources/arial.ttf" // Ruta al archivo de la fuente
+#define MAP_PATH "resources/map.txt" 
+#define FONT_PATH "resources/arial.ttf" 
 
-using namespace model; 
+using namespace model;
 using namespace sf;
-
 
 int main()
 {
     // Cargar mapa desde archivo
-    HexGrid grid = loadHexGridFromFile(MAP_PATH); 
-    // Se carga el grid hexagonal desde el archivo especificado en MAP_PATH.
-    // La función `loadHexGridFromFile` devuelve un objeto `HexGrid` inicializado.
+    HexGrid grid = loadHexGridFromFile(MAP_PATH);
 
     // Obtener celda de inicio
-    HexCell *start = findStartCell(grid); 
-    // Busca la celda de inicio (de tipo START) en el grid.
-    // Si no se encuentra, devuelve nullptr.
+    HexCell* start = findStartCell(grid);
 
-    if (!start) // Si no se encuentra la celda de inicio, termina el programa con un código de error.
+    if (!start)
         return 1;
 
     // Crear el jugador en la posición inicial
-    Player player(start->row, start->col); 
-    // Inicializa al jugador en la fila y columna de la celda de inicio.
+    Player player(start->row, start->col);
 
     // Inicializar el sistema de turnos
-   TurnSystem::resetTurnCounter(); 
-    // Resetea el contador de turnos al comenzar el juego
+    TurnSystem::resetTurnCounter();
 
-    // Crear la ventana de renderizado
-    RenderWindow window({WINDOW_WIDTH, WINDOW_HEIGHT}, "Game", Style::Titlebar | Style::Close);
-    // Crea una ventana de SFML con las dimensiones especificadas y el título "Game".
+    // Crear la ventana de renderizado con mayor resolución
+    RenderWindow window({ WINDOW_WIDTH, WINDOW_HEIGHT }, "🎮 Escape the Grid - Fabrica de Rompecabezas 🏭", Style::Titlebar | Style::Close);
+    window.setFramerateLimit(60); // Limitar FPS para animaciones suaves
 
     // Cargar la fuente para el texto
     Font font;
-    if (!font.loadFromFile(FONT_PATH)) // Intenta cargar la fuente desde el archivo especificado en FONT_PATH.
+    if (!font.loadFromFile(FONT_PATH))
     {
-        return 1; // Si no se puede cargar la fuente, termina el programa con un código de error.
+        return 1;
     }
 
     // Crear elementos gráficos
-    Text texto = createText(font, 16, Color::Black); 
-    // Crea un objeto de texto con la fuente cargada, tamaño 16 y color negro.
-    CircleShape hexagon = createHexagon(); 
-    // Crea un hexágono que se usará para renderizar las celdas del grid.
+    Text texto = createText(font, 16, Color::White);
+    CircleShape hexagon = createHexagon();
+
+    // Relojes para animaciones
+    Clock animationClock;
+    Clock backgroundClock;
 
     // Bucle principal del juego
-    while (window.isOpen()) // Mientras la ventana esté abierta
+    while (window.isOpen())
     {
-        Event event; // Objeto para manejar eventos de la ventana
-        while (window.pollEvent(event)) // Procesa todos los eventos en la cola
+        Event event;
+        while (window.pollEvent(event))
         {
-            if (event.type == Event::Closed) // Si se cierra la ventana
-                window.close(); // Cierra la ventana
-            if (event.type == Event::KeyPressed) // Si se presiona una tecla
-                handlePlayerMovement(event.key.code, player, grid); 
-                // Llama a la función `handlePlayerMovement` para mover al jugador
-                // según la tecla presionada. Ahora también maneja el sistema de turnos.
+            if (event.type == Event::Closed)
+                window.close();
+            if (event.type == Event::KeyPressed)
+                handlePlayerMovement(event.key.code, player, grid);
         }
 
         // Aplicar efecto de bandas transportadoras
-        handleConveyorMovement(player, grid); 
-        // Si el jugador está sobre una celda de tipo banda transportadora,
-        // mueve automáticamente al jugador a la celda correspondiente.
+        handleConveyorMovement(player, grid);
 
-        // Renderizar el contenido de la ventana
-        window.clear(Color::Black); 
-        // Limpia la ventana con un color negro de fondo.
+        // Limpiar ventana con color de fondo
+        window.clear(Color(10, 15, 25));
 
-        Text turnInfo = createText(font, 14, Color::White);
-        turnInfo.setString("Turnos: " + std::to_string(TurnSystem::getCurrentTurnCount()));
-        turnInfo.setPosition(650, 100);
-        window.draw(turnInfo);
+        // Dibujar el grid con la nueva interfaz moderna
+        drawGrid(window, grid, player, hexagon, texto, font, animationClock, backgroundClock);
 
-        drawGrid(window, grid, player, hexagon, texto); 
-        // Dibuja el grid hexagonal, el jugador y otros elementos en la ventana.
-        window.display(); 
-        // Muestra el contenido renderizado en la ventana.
+        // Dibujar UI moderna
+        drawModernEnergyBar(window, player, font, animationClock);
+        drawGameInfo(window, font, TurnSystem::getCurrentTurnCount());
+        drawModernControls(window, font);
+
+        window.display();
     }
 
-    return 0; 
+    return 0;
 }

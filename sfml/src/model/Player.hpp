@@ -10,8 +10,14 @@ namespace model
     public:
         int row;
         int col;
+
+        // Sistema de energía
         int energy = 0;
-        bool usedWallBreak = false;
+        static const int MAX_ENERGY = 10; // Energía máxima para romper una pared
+        static const int ENERGY_PER_MOVE = 1; // Energía ganada por cada movimiento
+        bool canBreakWall = false; // Flag que indica si puede romper una pared
+        // REMOVIDO: hasUsedWallBreak - ahora puede usar múltiples veces
+
         model::CellType lastCellType = model::CellType::EMPTY;
 
         // Sistema de animación para el movimiento
@@ -24,6 +30,16 @@ namespace model
 
         Player(int r, int c);
 
+        // Métodos de energía
+        void gainEnergy();
+        void resetEnergy();
+        bool isEnergyFull() const;
+        float getEnergyPercentage() const;
+
+        // Método para usar la habilidad de romper pared
+        void useWallBreak();
+        bool canUseWallBreak() const;
+
         // Inicia una animación de movimiento
         void startMovement(sf::Vector2f start, sf::Vector2f target);
 
@@ -31,6 +47,6 @@ namespace model
         void updateMovement();
 
         // Obtiene la posición visual actual del jugador
-        sf::Vector2f getVisualPosition(const class HexGrid &grid) const;
+        sf::Vector2f getVisualPosition(const class HexGrid& grid) const;
     };
 }
