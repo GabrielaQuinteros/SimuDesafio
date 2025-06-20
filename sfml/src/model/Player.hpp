@@ -4,7 +4,6 @@
 
 namespace model
 {
-
     class Player
     {
     public:
@@ -16,7 +15,9 @@ namespace model
         static const int MAX_ENERGY = 10; // Energía máxima para romper una pared
         static const int ENERGY_PER_MOVE = 1; // Energía ganada por cada movimiento
         bool canBreakWall = false; // Flag que indica si puede romper una pared
-        // REMOVIDO: hasUsedWallBreak - ahora puede usar múltiples veces
+
+        // NUEVO: Sistema de selección de paredes
+        bool isSelectingWall = false; // Flag para modo de selección de pared
 
         model::CellType lastCellType = model::CellType::EMPTY;
 

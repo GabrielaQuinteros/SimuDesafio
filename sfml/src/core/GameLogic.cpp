@@ -25,12 +25,38 @@ void handlePlayerMovement(Keyboard::Key key, Player& player, HexGrid& grid) {
     if (player.isMoving)
         return;
 
-    // Manejar la habilidad de romper pared con SPACE
-    if (key == Keyboard::Space) {
-        handleWallBreak(player, grid);
-        return;
+    // NUEVO: Manejar la selección de pared si está en modo selección
+    if (player.isSelectingWall) {
+        if (isValidWallBreakDirection(key)) {
+            handleWallBreak(key, player, grid);
+            return;
+        }
+        // Si presiona una tecla que no es dirección válida, cancelar selección
+        else if (key == Keyboard::Escape || key == Keyboard::Space) {
+            player.isSelectingWall = false;
+            std::cout << "Selección de pared cancelada." << std::endl;
+            return;
+        }
     }
 
+    // Manejar la activación del modo de selección de pared con SPACE
+    if (key == Keyboard::Space) {
+        if (player.canUseWallBreak()) {
+            player.isSelectingWall = true;
+            std::cout << "¡Modo selección de pared activado!" << std::endl;
+            std::cout << "Usa W/E (arriba), A/D (lados), Z/X (abajo) para elegir qué pared romper." << std::endl;
+            std::cout << "Presiona ESC para cancelar." << std::endl;
+            return;
+        } else {
+            if (!player.isEnergyFull()) {
+                std::cout << "Energía insuficiente. Necesitas " << Player::MAX_ENERGY
+                    << " puntos de energía. Actual: " << player.energy << std::endl;
+            }
+            return;
+        }
+    }
+
+    // Movimiento normal del jugador (sin cambios)
     int row = player.row, col = player.col;
     int newRow = row, newCol = col;
     bool isOdd = row % 2 != 0;
@@ -91,34 +117,85 @@ void handlePlayerMovement(Keyboard::Key key, Player& player, HexGrid& grid) {
     }
 }
 
-void handleWallBreak(Player& player, HexGrid& grid) {
-    if (!player.canUseWallBreak()) {
-        if (!player.isEnergyFull()) {
-            std::cout << "Energía insuficiente. Necesitas " << Player::MAX_ENERGY
-                << " puntos de energía. Actual: " << player.energy << std::endl;
-        }
+// FUNCIÓN COMPLETAMENTE REESCRITA para selección direccional
+void handleWallBreak(Keyboard::Key key, Player& player, HexGrid& grid) {
+    if (!player.canUseWallBreak() || !player.isSelectingWall) {
         return;
     }
 
-    // Buscar paredes adyacentes al jugador
-    std::vector<std::pair<int, int>> adjacentWalls = findAdjacentWalls(player, grid);
+    // Obtener la posición de la pared en la dirección seleccionada
+    auto [wallRow, wallCol] = getWallPositionInDirection(player, key, grid);
 
-    if (adjacentWalls.empty()) {
-        std::cout << "No hay paredes adyacentes para romper." << std::endl;
+    // Verificar si hay una pared en esa dirección
+    if (wallRow == -1 || wallCol == -1) {
+        std::cout << "No hay pared en esa dirección." << std::endl;
         return;
     }
 
-    // Por simplicidad, romper la primera pared encontrada
-    // En una implementación más avanzada, podrías permitir al jugador elegir
-    auto [wallRow, wallCol] = adjacentWalls[0];
+    // Verificar que esté dentro de los límites
+    if (wallRow < 0 || wallRow >= grid.rows() || wallCol < 0 || wallCol >= grid.cols()) {
+        std::cout << "Posición fuera de los límites del grid." << std::endl;
+        return;
+    }
+
+    // Verificar que efectivamente sea una pared
+    if (grid.at(wallRow, wallCol).type != CellType::WALL) {
+        std::cout << "No hay una pared en esa posición." << std::endl;
+        return;
+    }
 
     // Romper la pared (convertirla en celda vacía)
     grid.at(wallRow, wallCol).type = CellType::EMPTY;
 
     // Usar la habilidad (resetea la energía)
     player.useWallBreak();
+    player.isSelectingWall = false; // Salir del modo selección
 
     std::cout << "¡Pared rota en posición (" << wallRow << ", " << wallCol << ")!" << std::endl;
+}
+
+// NUEVA FUNCIÓN: Obtener offset direccional según la tecla presionada
+std::pair<int, int> getDirectionalOffset(sf::Keyboard::Key key, int currentRow) {
+    bool isOdd = currentRow % 2 != 0;
+    
+    switch (key) {
+        case Keyboard::W: // Arriba-izquierda
+            return {-1, isOdd ? 0 : -1};
+        case Keyboard::E: // Arriba-derecha  
+            return {-1, isOdd ? 1 : 0};
+        case Keyboard::A: // Izquierda
+            return {0, -1};
+        case Keyboard::D: // Derecha
+            return {0, 1};
+        case Keyboard::Z: // Abajo-izquierda
+            return {1, isOdd ? 0 : -1};
+        case Keyboard::X: // Abajo-derecha
+            return {1, isOdd ? 1 : 0};
+        default:
+            return {0, 0};
+    }
+}
+
+// NUEVA FUNCIÓN: Verificar si la tecla es una dirección válida para romper paredes
+bool isValidWallBreakDirection(sf::Keyboard::Key key) {
+    return (key == Keyboard::W || key == Keyboard::E || 
+            key == Keyboard::A || key == Keyboard::D || 
+            key == Keyboard::Z || key == Keyboard::X);
+}
+
+// NUEVA FUNCIÓN: Obtener la posición de la pared en una dirección específica
+std::pair<int, int> getWallPositionInDirection(const Player& player, sf::Keyboard::Key direction, const HexGrid& grid) {
+    auto [deltaRow, deltaCol] = getDirectionalOffset(direction, player.row);
+    
+    int wallRow = player.row + deltaRow;
+    int wallCol = player.col + deltaCol;
+    
+    // Verificar límites
+    if (wallRow < 0 || wallRow >= grid.rows() || wallCol < 0 || wallCol >= grid.cols()) {
+        return {-1, -1}; // Posición inválida
+    }
+    
+    return {wallRow, wallCol};
 }
 
 std::vector<std::pair<int, int>> findAdjacentWalls(const Player& player, const HexGrid& grid) {
