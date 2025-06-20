@@ -56,7 +56,7 @@ void handlePlayerMovement(Keyboard::Key key, Player& player, HexGrid& grid) {
         }
     }
 
-    // Movimiento normal del jugador (sin cambios)
+    // Movimiento normal del jugador
     int row = player.row, col = player.col;
     int newRow = row, newCol = col;
     bool isOdd = row % 2 != 0;
@@ -108,7 +108,15 @@ void handlePlayerMovement(Keyboard::Key key, Player& player, HexGrid& grid) {
             player.row = newRow;
             player.col = newCol;
 
-            // ¡IMPORTANTE! Ganar energía al moverse exitosamente
+            // ¡NUEVO! Verificar si llegó a la meta
+            if (target.type == CellType::GOAL) {
+                player.hasWon = true;
+                player.winTime = player.winClock.getElapsedTime().asSeconds();
+                std::cout << "¡¡¡VICTORIA!!! Has llegado a la meta en " << player.winTime << " segundos!" << std::endl;
+                return; // No ganar energía ni manejar turnos cuando gana
+            }
+
+            // Ganar energía al moverse exitosamente
             player.gainEnergy();
 
             // Manejar el sistema de turnos después de un movimiento exitoso
@@ -117,7 +125,6 @@ void handlePlayerMovement(Keyboard::Key key, Player& player, HexGrid& grid) {
     }
 }
 
-// FUNCIÓN COMPLETAMENTE REESCRITA para selección direccional
 void handleWallBreak(Keyboard::Key key, Player& player, HexGrid& grid) {
     if (!player.canUseWallBreak() || !player.isSelectingWall) {
         return;
@@ -154,7 +161,6 @@ void handleWallBreak(Keyboard::Key key, Player& player, HexGrid& grid) {
     std::cout << "¡Pared rota en posición (" << wallRow << ", " << wallCol << ")!" << std::endl;
 }
 
-// NUEVA FUNCIÓN: Obtener offset direccional según la tecla presionada
 std::pair<int, int> getDirectionalOffset(sf::Keyboard::Key key, int currentRow) {
     bool isOdd = currentRow % 2 != 0;
     
@@ -176,14 +182,12 @@ std::pair<int, int> getDirectionalOffset(sf::Keyboard::Key key, int currentRow) 
     }
 }
 
-// NUEVA FUNCIÓN: Verificar si la tecla es una dirección válida para romper paredes
 bool isValidWallBreakDirection(sf::Keyboard::Key key) {
     return (key == Keyboard::W || key == Keyboard::E || 
             key == Keyboard::A || key == Keyboard::D || 
             key == Keyboard::Z || key == Keyboard::X);
 }
 
-// NUEVA FUNCIÓN: Obtener la posición de la pared en una dirección específica
 std::pair<int, int> getWallPositionInDirection(const Player& player, sf::Keyboard::Key direction, const HexGrid& grid) {
     auto [deltaRow, deltaCol] = getDirectionalOffset(direction, player.row);
     
@@ -215,7 +219,7 @@ std::vector<std::pair<int, int>> findAdjacentWalls(const Player& player, const H
 }
 
 void handleConveyorMovement(Player& player, const HexGrid& grid) {
-    if (player.isMoving)
+    if (player.isMoving || player.hasWon) // No mover si ya ganó
         return;
 
     const HexCell& current = grid.at(player.row, player.col);
@@ -238,6 +242,14 @@ void handleConveyorMovement(Player& player, const HexGrid& grid) {
             player.lastCellType = current.type;
             player.row = newRow;
             player.col = newCol;
+
+            // Verificar victoria también en movimiento por banda transportadora
+            if (target.type == CellType::GOAL) {
+                player.hasWon = true;
+                player.winTime = player.winClock.getElapsedTime().asSeconds();
+                std::cout << "¡¡¡VICTORIA!!! Has llegado a la meta!" << std::endl;
+                return;
+            }
 
             // Ganar energía también al moverse por banda transportadora
             player.gainEnergy();

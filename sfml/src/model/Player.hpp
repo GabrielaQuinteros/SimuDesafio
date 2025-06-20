@@ -16,8 +16,13 @@ namespace model
         static const int ENERGY_PER_MOVE = 1; // Energía ganada por cada movimiento
         bool canBreakWall = false; // Flag que indica si puede romper una pared
 
-        // NUEVO: Sistema de selección de paredes
+        // Sistema de selección de paredes
         bool isSelectingWall = false; // Flag para modo de selección de pared
+
+        // NUEVO: Sistema de victoria
+        bool hasWon = false;
+        float winTime = 0.0f;
+        sf::Clock winClock; // Para medir el tiempo de juego
 
         model::CellType lastCellType = model::CellType::EMPTY;
 
