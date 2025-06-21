@@ -8,6 +8,7 @@
 #include "core/GameLogic.hpp"
 #include "core/TurnSystem.hpp"
 #include "render/Renderer.hpp"
+#include "core/PathFinding.hpp"
 
 // Definición de constantes para la ventana y recursos
 #define WINDOW_WIDTH 900  // Aumentado para mejor UI
@@ -25,9 +26,13 @@ int main()
 
     // Obtener celda de inicio
     HexCell* start = findStartCell(grid);
+	// Obtener celda de meta
+	HexCell* goal = findGoalCell(grid);
 
     if (!start)
         return 1;
+	if (!goal)
+		return 1;
 
     // Crear el jugador en la posición inicial
     Player player(start->row, start->col);
@@ -73,16 +78,27 @@ int main()
             if (event.type == Event::KeyPressed)
             {
                 // Si ya ganó, solo permitir salir con ESC
-                if (showVictoryScreen) {
-                    if (event.key.code == Keyboard::Escape) {
+                if (event.key.code == Keyboard::Escape) {
+                    if (showVictoryScreen) {
                         window.close();
                     }
+                }
+                else if (event.key.code == Keyboard::P) {
+                    auto path = findPathWithCooldown(grid, player.row, player.col, goal->row, goal->col, 10);
+                    /*if( path.success)
+						std::cout << "Ruta encontrada con éxito!" << std::endl;
+					for (const auto& cell : path.path) {
+						std::cout << "(" << cell->row << ", " << cell->col << ") ";
+					}
+					std::cout << std::endl;*/
+
                 }
                 else {
                     // Juego normal
                     handlePlayerMovement(event.key.code, player, grid);
                 }
             }
+          
         }
 
         // Verificar condición de victoria
@@ -107,7 +123,7 @@ int main()
         }
         else {
             // Dibujar el juego normal con interfaz ultra moderna
-            drawGrid(window, grid, player, hexagon, texto, font, animationClock, backgroundClock);
+            drawGrid(window, grid, player, hexagon, texto, font, animationClock, backgroundClock, path);
 
             // Dibujar UI ultra profesional
             drawModernEnergyBar(window, player, font, animationClock);

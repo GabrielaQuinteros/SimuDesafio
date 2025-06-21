@@ -20,6 +20,17 @@ HexCell* findStartCell(HexGrid& grid) {
     return nullptr;
 }
 
+HexCell* findGoalCell(HexGrid& grid) {
+	for (int y = 0; y < grid.rows(); ++y) {
+		for (int x = 0; x < grid.cols(); ++x) {
+			if (grid.at(y, x).type == CellType::GOAL)
+				return &grid.at(y, x);
+		}
+	}
+	std::cerr << "No se encontró celda de meta (GOAL)\n";
+	return nullptr;
+}
+
 void handlePlayerMovement(Keyboard::Key key, Player& player, HexGrid& grid) {
     // No permitir movimiento manual si el jugador está siendo animado
     if (player.isMoving)
