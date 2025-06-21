@@ -23,10 +23,11 @@ add_executable(main
     # Core (lógica del juego)
     src/core/GameLogic.cpp
     src/core/TurnSystem.cpp
+    src/core/PathFinding.cpp
 
     # Render
     src/render/Renderer.cpp
-)
+ )
 
 target_link_libraries(main PRIVATE sfml-graphics)
 target_compile_features(main PRIVATE cxx_std_17)

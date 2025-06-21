@@ -9,6 +9,8 @@
 #include "core/TurnSystem.hpp"
 #include "render/Renderer.hpp"
 #include "core/PathFinding.hpp"
+#include <iostream>
+#include <set>
 
 // Definición de constantes para la ventana y recursos
 #define WINDOW_WIDTH 900  // Aumentado para mejor UI
@@ -65,6 +67,9 @@ int main()
     // Variables de estado del juego
     bool gameWon = false;
     bool showVictoryScreen = false;
+    std::set<std::pair<int, int>> pathCells;
+
+
 
     // Bucle principal del juego ultra optimizado
     while (window.isOpen())
@@ -84,14 +89,16 @@ int main()
                     }
                 }
                 else if (event.key.code == Keyboard::P) {
-                    auto path = findPathWithCooldown(grid, player.row, player.col, goal->row, goal->col, 10);
-                    /*if( path.success)
-						std::cout << "Ruta encontrada con éxito!" << std::endl;
+                    PathfindingResult path = findPath(grid, player.row, player.col, goal->row, goal->col, player.energy);
+
 					for (const auto& cell : path.path) {
 						std::cout << "(" << cell->row << ", " << cell->col << ") ";
 					}
-					std::cout << std::endl;*/
+					std::cout << "\n";
 
+                    for (auto* cell : path.path) {
+                        pathCells.emplace(cell->row, cell->col);
+                    }
                 }
                 else {
                     // Juego normal
@@ -123,7 +130,7 @@ int main()
         }
         else {
             // Dibujar el juego normal con interfaz ultra moderna
-            drawGrid(window, grid, player, hexagon, texto, font, animationClock, backgroundClock, path);
+            drawGrid(window, grid, player, hexagon, texto, font, animationClock, backgroundClock, pathCells);
 
             // Dibujar UI ultra profesional
             drawModernEnergyBar(window, player, font, animationClock);

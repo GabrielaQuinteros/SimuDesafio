@@ -39,31 +39,27 @@ HexCell &HexGrid::at(int row, int col)
 }
 
 // Método para obtener los vecinos de una celda específica
-std::vector<HexCell *> HexGrid::neighbors(const HexCell &cell)
+std::vector<HexCell*> HexGrid::neighbors(const HexCell& cell)
 {
-    // Desplazamientos relativos para las filas y columnas de los vecinos
-    static const int dRow[6] = {-1, -1, 0, 0, 1, 1};       // Cambios en la fila para los 6 vecinos
-    static const int dColEven[6] = {0, 1, -1, 1, 0, 1};    // Cambios en la columna para filas pares
-    static const int dColOdd[6] = {-1, 0, -1, 1, -1, 0};   // Cambios en la columna para filas impares
+    // Dirección: E, SE, SW, W, NW, NE (en sentido horario desde la derecha)
+    static const int dRow[6] = { 0, 1, 1, 0, -1, -1 };
 
-    std::vector<HexCell *> result; // Contenedor para almacenar los punteros a los vecinos
-    int r = cell.row, c = cell.col; // Coordenadas de la celda actual
-    const bool odd = (r % 2 != 0);  // Determina si la fila es impar
+    static const int dColEven[6] = { 1, 0, -1, -1, -1, 0 }; // filas pares
+    static const int dColOdd[6] = { 1, 1, 0, -1, 0, 1 };   // filas impares
 
-    // Itera sobre los 6 posibles vecinos
-    for (int i = 0; i < 6; ++i)
-    {
-        // Calcula las coordenadas del vecino
-        int nr = r + dRow[i]; // Nueva fila
-        int nc = c + (odd ? dColOdd[i] : dColEven[i]); // Nueva columna (dependiendo de si la fila es impar o par)
-        // Verifica que las coordenadas del vecino estén dentro de los límites del grid
-        if (nr >= 0 && nr < m_rows && nc >= 0 && nc < m_cols)
-        {
-            // Agrega un puntero a la celda vecina al contenedor de resultados
+    std::vector<HexCell*> result;
+    int r = cell.row, c = cell.col;
+    bool odd = r % 2 != 0;
+
+    for (int i = 0; i < 6; ++i) {
+        int nr = r + dRow[i];
+        int nc = c + (odd ? dColOdd[i] : dColEven[i]);
+
+        if (nr >= 0 && nr < m_rows && nc >= 0 && nc < m_cols) {
             result.push_back(&m_cells[nr][nc]);
         }
     }
-    return result; // Devuelve el vector de punteros a los vecinos
+    return result;
 }
 
 // Método para convertir las coordenadas del grid a coordenadas de píxeles

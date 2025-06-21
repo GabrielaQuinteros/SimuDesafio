@@ -1,7 +1,9 @@
+#pragma once
 #include "Renderer.hpp"
 #include <SFML/Graphics.hpp>
 #include "utils/MapLoader.hpp"
 #include "model/Player.hpp"
+#include "core/PathFinding.hpp"
 #include <cmath>
 
 using namespace model;
@@ -684,8 +686,11 @@ Color getCellColor(CellType type, Clock& animClock) {
 // Grid principal con efectos profesionales y hexagonales
 void drawGrid(RenderWindow& window, const HexGrid& grid,
     Player& player, CircleShape& hexagon,
-    Text& text, Font& font, Clock& animClock, Clock& bgClock)
+    Text& text, Font& font, Clock& animClock, Clock& bgClock,
+    std::set<std::pair<int, int>>& pathCells)
 {
+
+
     // Dibujar fondo vibrante
     drawAnimatedBackground(window, bgClock);
 
@@ -822,6 +827,13 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
                 hexagon.setOutlineColor(Color(120, 140, 160));
                 hexagon.setOutlineThickness(1);
             }
+            // Si la celda está en el path, resáltala
+            if (pathCells.count({ cell.row, cell.col })) {
+                hexagon.setOutlineColor(sf::Color::Red); // o el color que quieras
+                hexagon.setOutlineThickness(4.f); // grosor para que resalte
+            }
+           
+            
 
             window.draw(hexagon);
 

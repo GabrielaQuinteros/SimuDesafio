@@ -3,16 +3,15 @@
 #include "model/HexGrid.hpp" // para acceder a HexGrid
 #include <vector>
 
+
 struct PathfindingResult {
     std::vector<model::HexCell*> path;
     bool success;
 };
 
-PathfindingResult findPathWithCooldown(
+PathfindingResult findPath(
     model::HexGrid& grid,
     int startRow, int startCol,
     int goalRow, int goalCol,
-    int cooldown
+    int initialEnergy
 );
-
-

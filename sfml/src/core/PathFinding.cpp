@@ -1,49 +1,97 @@
 #pragma once
 
 #include "Pathfinding.hpp"
+#include "model/HexGrid.hpp"
 #include <queue>
 #include <tuple>
-#include <set>
 #include <map>
-#include <algorithm> // Para std::reverse
+#include <set>
+#include <algorithm>
 
+// Energía máxima para romper pared
+constexpr int MAX_ENERGY = 10;
 
 struct State {
     int row, col;
-    int turnsPassed;
-    int priority;
+    int energy;
+    int cost;
 
     bool operator>(const State& other) const {
-        return priority > other.priority;
+        return cost > other.cost;
     }
 };
 
-PathfindingResult findPathWithCooldown(
+// Devuelve el desplazamiento en fila/columna según el tipo de banda
+std::pair<int, int> getTransportDirection(model::CellType type, int row) {
+    // En hexágonos pointy-top con offset-odd
+    bool isOdd = row % 2 != 0;
+
+    switch (type) {
+    case model::CellType::UP_RIGHT:     return { -1, isOdd ? 0 : 1 };
+    case model::CellType::UP_LEFT:      return { -1, isOdd ? -1 : 0 };
+    case model::CellType::RIGHT:        return { 0, 1 };
+    case model::CellType::LEFT:         return { 0, -1 };
+    case model::CellType::DOWN_RIGHT:   return { 1, isOdd ? 0 : 1 };
+    case model::CellType::DOWN_LEFT:    return { 1, isOdd ? -1 : 0 };
+    default:                            return { 0, 0 };
+    }
+}
+
+// Simula deslizamiento por bandas transportadoras
+std::tuple<int, int, int> slideThroughBands(model::HexGrid& grid, int row, int col, int energy) {
+    while (true) {
+        const auto& cell = grid.at(row, col);
+        auto type = cell.type;
+        if (type != model::CellType::UP_RIGHT &&
+            type != model::CellType::UP_LEFT &&
+            type != model::CellType::RIGHT &&
+            type != model::CellType::LEFT &&
+            type != model::CellType::DOWN_RIGHT &&
+            type != model::CellType::DOWN_LEFT)
+        {
+            break; // no es banda
+        }
+
+        auto [dr, dc] = getTransportDirection(type, row);
+        int nr = row + dr;
+        int nc = col + dc;
+
+        if (!grid.inBounds(nr, nc)) break;
+
+        // Simula movimiento automático: gana 1 de energía
+        energy = std::min(energy + 1, MAX_ENERGY);
+        row = nr;
+        col = nc;
+    }
+
+    return { row, col, energy };
+}
+
+PathfindingResult findPath(
     model::HexGrid& grid,
     int startRow, int startCol,
     int goalRow, int goalCol,
-    int cooldown
+    int initialEnergy
 ) {
     std::priority_queue<State, std::vector<State>, std::greater<State>> openSet;
-    std::map<std::tuple<int,int,int>, std::tuple<int,int,int>> cameFrom;
-    std::set<std::tuple<int,int,int>> visited;
+    std::map<std::tuple<int, int, int>, std::tuple<int, int, int>> cameFrom;
+    std::set<std::tuple<int, int, int>> visited;
 
-    openSet.push({startRow, startCol, 0, 0});
-    visited.insert({startRow, startCol, 0});
+    openSet.push({ startRow, startCol, initialEnergy, 0 });
+    visited.insert({ startRow, startCol, initialEnergy });
 
     while (!openSet.empty()) {
         State current = openSet.top();
         openSet.pop();
 
+        // Verifica si llegamos
         if (current.row == goalRow && current.col == goalCol) {
-            // Reconstrucción del camino
             std::vector<model::HexCell*> path;
-            auto key = std::make_tuple(goalRow, goalCol, current.turnsPassed % cooldown);
-
+            auto key = std::make_tuple(current.row, current.col, current.energy);
             while (cameFrom.count(key)) {
-                auto [r, c, t] = key;
-                path.push_back(&grid.at(r, c));
-                key = cameFrom[key];
+                auto [pr, pc, pe] = cameFrom[key];
+                path.push_back(&grid.at(std::get<0>(key), std::get<1>(key)));
+                key = std::make_tuple(pr, pc, pe);
             }
             path.push_back(&grid.at(startRow, startCol));
             std::reverse(path.begin(), path.end());
@@ -54,21 +102,25 @@ PathfindingResult findPathWithCooldown(
         for (model::HexCell* neighbor : grid.neighbors(cell)) {
             int nr = neighbor->row;
             int nc = neighbor->col;
-            int nextTurns = current.turnsPassed + 1;
+            int newEnergy = std::min(current.energy + 1, MAX_ENERGY);
 
-            bool puedeRomper = (nextTurns % cooldown == 0);
+            // Si es pared
+            if (neighbor->type == model::CellType::WALL) {
+                if (~ current.energy >= MAX_ENERGY) continue;
+                newEnergy = 0; // se rompe pared, energía reiniciada
+            }
 
-            if (neighbor->type == model::CellType::WALL && !puedeRomper) continue;
+            // Simula bandas desde esa celda
+            auto [finalR, finalC, finalEnergy] = slideThroughBands(grid, nr, nc, newEnergy);
+            auto key = std::make_tuple(finalR, finalC, finalEnergy);
 
-            auto key = std::make_tuple(nr, nc, nextTurns % cooldown);
             if (visited.count(key)) continue;
             visited.insert(key);
-            int priority = nextTurns; // heurística básica; podés añadir distancia al objetivo
-            openSet.push({ nr, nc, nextTurns, priority });
-            cameFrom[key] = std::make_tuple(current.row, current.col, current.turnsPassed % cooldown);
+
+            openSet.push({ finalR, finalC, finalEnergy, current.cost + 1 });
+            cameFrom[key] = std::make_tuple(current.row, current.col, current.energy);
         }
     }
 
-    return {{}, false}; // No se encontró camino
+    return { {}, false }; // no hay camino
 }
-

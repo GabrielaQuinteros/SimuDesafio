@@ -12,6 +12,9 @@ using namespace model;
 // Función para encontrar la celda de inicio
 HexCell* findStartCell(HexGrid& grid);
 
+// Función para encontrar la celda de meta
+HexCell* findGoalCell(HexGrid& grid);
+
 // Funciones de movimiento
 void handlePlayerMovement(sf::Keyboard::Key key, Player& player, HexGrid& grid);
 void handleConveyorMovement(Player& player, const HexGrid& grid);
