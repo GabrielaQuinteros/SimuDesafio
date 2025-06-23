@@ -4,7 +4,7 @@
 #include "model/HexGrid.hpp"
 #include "model/Player.hpp"
 #include "core/PathFinding.hpp"
-#include <set>
+#include <vector>  // CAMBIO: vector en lugar de set
 
 // Crea y configura un hexágono base
 sf::CircleShape createHexagon();
@@ -34,6 +34,8 @@ void drawModernControls(sf::RenderWindow& window, sf::Font& font, sf::Clock& ani
 sf::Color getCellColor(model::CellType type, sf::Clock& animClock);
 
 // Dibuja el grid completo con efectos ultra modernos y profesionales
+// CAMBIO: Ahora usa vector en lugar de set para mantener el orden del pathfinding
 void drawGrid(sf::RenderWindow& window, const model::HexGrid& grid,
     model::Player& player, sf::CircleShape& hexagon,
-    sf::Text& texto, sf::Font& font, sf::Clock& animClock, sf::Clock& bgClock, std::set<std::pair<int, int>>& path);
+    sf::Text& texto, sf::Font& font, sf::Clock& animClock, sf::Clock& bgClock, 
+    std::vector<std::pair<int, int>>& path);  // CAMBIO: vector en lugar de set

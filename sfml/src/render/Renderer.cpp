@@ -19,6 +19,11 @@ const Color CYBER_WHITE = Color(240, 240, 255);
 const Color TECH_GRAY = Color(70, 90, 120);
 const Color DARK_BLUE = Color(20, 40, 80);
 
+// NUEVOS COLORES PARA EL CAMINO DE PATHFINDING
+const Color PATH_RED = Color(255, 50, 50);
+const Color PATH_GLOW = Color(255, 100, 100, 180);
+const Color PATH_BRIGHT = Color(255, 255, 255);
+
 CircleShape createHexagon()
 {
     CircleShape hexagon(25, 6);
@@ -38,6 +43,71 @@ Color lerpColor(const Color& a, const Color& b, float t) {
     );
 }
 
+// NUEVA FUNCIÓN: Crear flecha direccional
+ConvexShape createDirectionalArrow(Vector2f from, Vector2f to, Color color) {
+    ConvexShape arrow;
+    arrow.setPointCount(7);
+   
+    // Calcular dirección y distancia
+    Vector2f direction = Vector2f(to.x - from.x, to.y - from.y);
+    float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+   
+    if (length < 0.1f) {
+        // Si la distancia es muy pequeña, crear flecha pequeña
+        arrow.setPointCount(3);
+        arrow.setPoint(0, Vector2f(0, -5));
+        arrow.setPoint(1, Vector2f(-3, 3));
+        arrow.setPoint(2, Vector2f(3, 3));
+    } else {
+        // Normalizar dirección
+        direction = Vector2f(direction.x / length, direction.y / length);
+       
+        // Crear flecha apuntando hacia arriba (luego rotaremos)
+        float arrowLength = std::min(20.0f, length * 0.6f);
+        float arrowWidth = 8.0f;
+        float headLength = 8.0f;
+        float headWidth = 12.0f;
+       
+        arrow.setPoint(0, Vector2f(0, -arrowLength/2));                    // Punta
+        arrow.setPoint(1, Vector2f(-headWidth/2, -arrowLength/2 + headLength)); // Izq cabeza
+        arrow.setPoint(2, Vector2f(-arrowWidth/2, -arrowLength/2 + headLength)); // Izq cuerpo
+        arrow.setPoint(3, Vector2f(-arrowWidth/2, arrowLength/2));         // Izq base
+        arrow.setPoint(4, Vector2f(arrowWidth/2, arrowLength/2));          // Der base
+        arrow.setPoint(5, Vector2f(arrowWidth/2, -arrowLength/2 + headLength)); // Der cuerpo
+        arrow.setPoint(6, Vector2f(headWidth/2, -arrowLength/2 + headLength));  // Der cabeza
+       
+        // Calcular ángulo de rotación
+        float angle = std::atan2(direction.x, -direction.y) * 180.0f / 3.14159f;
+        arrow.setRotation(angle);
+    }
+   
+    // Posicionar en el punto medio entre from y to
+    Vector2f midpoint = Vector2f((from.x + to.x) / 2.0f, (from.y + to.y) / 2.0f);
+    arrow.setPosition(midpoint);
+    arrow.setFillColor(color);
+    arrow.setOutlineColor(Color(255, 255, 255, 200));
+    arrow.setOutlineThickness(1);
+   
+    return arrow;
+}
+
+// NUEVA FUNCIÓN: Crear número de secuencia
+Text createSequenceNumber(int number, Vector2f position, Font& font, Color color) {
+    Text numberText;
+    numberText.setFont(font);
+    numberText.setCharacterSize(12);
+    numberText.setStyle(Text::Bold);
+    numberText.setFillColor(color);
+    numberText.setString(std::to_string(number));
+   
+    // Centrar el texto
+    FloatRect bounds = numberText.getLocalBounds();
+    numberText.setOrigin(bounds.width / 2, bounds.height / 2);
+    numberText.setPosition(position);
+   
+    return numberText;
+}
+
 // Función para crear hexágonos decorativos
 void drawDecorativeHex(RenderWindow& window, Vector2f position, float size, Color color, float time, bool rotating = true) {
     CircleShape hex(size, 6);
@@ -46,23 +116,85 @@ void drawDecorativeHex(RenderWindow& window, Vector2f position, float size, Colo
     hex.setFillColor(Color::Transparent);
     hex.setOutlineColor(color);
     hex.setOutlineThickness(2);
-    
+   
     if (rotating) {
         hex.rotate(time * 30.0f);
     }
-    
+   
     window.draw(hex);
+}
+
+// NUEVA FUNCIÓN: Dibujar efectos especiales para el camino de pathfinding
+void drawPathEffects(RenderWindow& window, Vector2f position, Clock& animClock, bool isStart = false, bool isEnd = false) {
+    float time = animClock.getElapsedTime().asSeconds();
+   
+    if (isStart) {
+        // Efecto especial para el inicio del camino
+        for (int i = 0; i < 4; ++i) {
+            CircleShape startRing(30 + i * 8, 6);
+            startRing.setOrigin(30 + i * 8, 30 + i * 8);
+            startRing.setPosition(position);
+            startRing.setFillColor(Color::Transparent);
+           
+            float ringIntensity = sin(time * 6.0f + i * 1.5f) * 0.4f + 0.6f;
+            Color ringColor = NEON_GREEN;
+            ringColor.a = static_cast<Uint8>(150 * ringIntensity);
+            startRing.setOutlineColor(ringColor);
+            startRing.setOutlineThickness(3);
+            startRing.rotate(time * 60.0f * (i + 1));
+            window.draw(startRing);
+        }
+    }
+    else if (isEnd) {
+        // Efecto especial para el final del camino
+        for (int i = 0; i < 4; ++i) {
+            CircleShape endRing(30 + i * 8, 6);
+            endRing.setOrigin(30 + i * 8, 30 + i * 8);
+            endRing.setPosition(position);
+            endRing.setFillColor(Color::Transparent);
+           
+            float ringIntensity = sin(time * 8.0f + i * 2.0f) * 0.5f + 0.5f;
+            Color ringColor = ELECTRIC_YELLOW;
+            ringColor.a = static_cast<Uint8>(200 * ringIntensity);
+            endRing.setOutlineColor(ringColor);
+            endRing.setOutlineThickness(4);
+            endRing.rotate(time * 90.0f * (i + 1));
+            window.draw(endRing);
+        }
+    }
+    else {
+        // Efecto para celdas intermedias del camino
+        float pulse = sin(time * 4.0f) * 0.3f + 0.7f;
+       
+        // Resplandor exterior
+        CircleShape outerGlow(40, 6);
+        outerGlow.setOrigin(40, 40);
+        outerGlow.setPosition(position);
+        outerGlow.setFillColor(Color::Transparent);
+        outerGlow.setOutlineColor(Color(PATH_GLOW.r, PATH_GLOW.g, PATH_GLOW.b, static_cast<Uint8>(100 * pulse)));
+        outerGlow.setOutlineThickness(6);
+        window.draw(outerGlow);
+       
+        // Anillo intermedio
+        CircleShape midRing(32, 6);
+        midRing.setOrigin(32, 32);
+        midRing.setPosition(position);
+        midRing.setFillColor(Color::Transparent);
+        midRing.setOutlineColor(Color(PATH_RED.r, PATH_RED.g, PATH_RED.b, static_cast<Uint8>(180 * pulse)));
+        midRing.setOutlineThickness(4);
+        window.draw(midRing);
+    }
 }
 
 // Pantalla de victoria con temática hexagonal profesional
 void drawVictoryScreen(RenderWindow& window, Font& font, float winTime, int turnCount, Clock& animClock) {
     float time = animClock.getElapsedTime().asSeconds();
-    
+   
     // Fondo con gradiente vibrante
     for (int i = 0; i < window.getSize().y; i += 4) {
         float gradient = static_cast<float>(i) / window.getSize().y;
         Color currentColor = lerpColor(DARK_BLUE, Color(40, 20, 80), gradient);
-        
+       
         RectangleShape line(Vector2f(window.getSize().x, 4));
         line.setPosition(0, i);
         line.setFillColor(currentColor);
@@ -73,29 +205,29 @@ void drawVictoryScreen(RenderWindow& window, Font& font, float winTime, int turn
     for (int i = 0; i < 20; ++i) {
         float x = 100 + (i % 4) * 200 + sin(time + i) * 50;
         float y = 100 + (i / 4) * 100 + cos(time * 1.5f + i) * 30;
-        
-        Color hexColor = (i % 3 == 0) ? NEON_BLUE : 
+       
+        Color hexColor = (i % 3 == 0) ? NEON_BLUE :
                         (i % 3 == 1) ? NEON_GREEN : NEON_PURPLE;
         hexColor.a = 100;
-        
+       
         drawDecorativeHex(window, Vector2f(x, y), 15 + (i % 3) * 5, hexColor, time * (1 + i % 3));
     }
 
     float centerX = window.getSize().x / 2.0f;
     float centerY = window.getSize().y / 2.0f;
-    
+   
     // Marco hexagonal principal
     for (int i = 0; i < 3; ++i) {
         CircleShape mainHex(120 + i * 25, 6);
         mainHex.setOrigin(120 + i * 25, 120 + i * 25);
         mainHex.setPosition(centerX, centerY);
         mainHex.setFillColor(Color::Transparent);
-        
+       
         Color hexColor;
         if (i == 0) hexColor = ELECTRIC_YELLOW;
         else if (i == 1) hexColor = NEON_BLUE;
         else hexColor = NEON_PURPLE;
-        
+       
         hexColor.a = 150 - i * 30;
         mainHex.setOutlineColor(hexColor);
         mainHex.setOutlineThickness(3);
@@ -117,7 +249,7 @@ void drawVictoryScreen(RenderWindow& window, Font& font, float winTime, int turn
         RectangleShape circuit(Vector2f(150, 2));
         circuit.setOrigin(75, 1);
         circuit.setPosition(centerX + (i % 3 - 1) * 100, centerY - 80 + (i / 3) * 160);
-        
+       
         float intensity = sin(time * 4.0f + i) * 0.5f + 0.5f;
         Color circuitColor = NEON_GREEN;
         circuitColor.a = static_cast<Uint8>(100 + 100 * intensity);
@@ -131,11 +263,11 @@ void drawVictoryScreen(RenderWindow& window, Font& font, float winTime, int turn
     victoryTitle.setCharacterSize(48);
     victoryTitle.setStyle(Text::Bold);
     victoryTitle.setString("VICTORY");
-    
+   
     FloatRect titleBounds = victoryTitle.getLocalBounds();
     victoryTitle.setOrigin(titleBounds.width / 2, titleBounds.height / 2);
     victoryTitle.setPosition(centerX, centerY - 60);
-    
+   
     float titleGlow = sin(time * 6.0f) * 0.4f + 0.6f;
     victoryTitle.setFillColor(Color(
         static_cast<Uint8>(ELECTRIC_YELLOW.r * titleGlow),
@@ -149,7 +281,7 @@ void drawVictoryScreen(RenderWindow& window, Font& font, float winTime, int turn
     subtitle.setFont(font);
     subtitle.setCharacterSize(16);
     subtitle.setString("MISION COMPLETADA");
-    
+   
     FloatRect subtitleBounds = subtitle.getLocalBounds();
     subtitle.setOrigin(subtitleBounds.width / 2, subtitleBounds.height / 2);
     subtitle.setPosition(centerX, centerY - 20);
@@ -161,7 +293,7 @@ void drawVictoryScreen(RenderWindow& window, Font& font, float winTime, int turn
     timeText.setFont(font);
     timeText.setCharacterSize(14);
     timeText.setString("TIEMPO TOTAL: " + std::to_string(static_cast<int>(winTime)) + " SEGUNDOS");
-    
+   
     FloatRect timeTextBounds = timeText.getLocalBounds();
     timeText.setOrigin(timeTextBounds.width / 2, timeTextBounds.height / 2);
     timeText.setPosition(centerX, centerY + 15);
@@ -172,7 +304,7 @@ void drawVictoryScreen(RenderWindow& window, Font& font, float winTime, int turn
     turnsText.setFont(font);
     turnsText.setCharacterSize(14);
     turnsText.setString("TURNOS EJECUTADOS: " + std::to_string(turnCount));
-    
+   
     FloatRect turnsTextBounds = turnsText.getLocalBounds();
     turnsText.setOrigin(turnsTextBounds.width / 2, turnsTextBounds.height / 2);
     turnsText.setPosition(centerX, centerY + 35);
@@ -183,7 +315,7 @@ void drawVictoryScreen(RenderWindow& window, Font& font, float winTime, int turn
     Text performanceText;
     performanceText.setFont(font);
     performanceText.setCharacterSize(13);
-    
+   
     std::string performance;
     Color perfColor;
     if (winTime < 30 && turnCount < 20) {
@@ -199,7 +331,7 @@ void drawVictoryScreen(RenderWindow& window, Font& font, float winTime, int turn
         performance = "MISION CUMPLIDA";
         perfColor = NEON_BLUE;
     }
-    
+   
     performanceText.setString(performance);
     FloatRect perfBounds = performanceText.getLocalBounds();
     performanceText.setOrigin(perfBounds.width / 2, perfBounds.height / 2);
@@ -212,11 +344,11 @@ void drawVictoryScreen(RenderWindow& window, Font& font, float winTime, int turn
     exitText.setFont(font);
     exitText.setCharacterSize(11);
     exitText.setString("PRESIONA ESC PARA SALIR");
-    
+   
     FloatRect exitBounds = exitText.getLocalBounds();
     exitText.setOrigin(exitBounds.width / 2, exitBounds.height / 2);
     exitText.setPosition(centerX, centerY + 95);
-    
+   
     float exitAlpha = sin(time * 3.0f) * 100 + 155;
     exitText.setFillColor(Color(CYBER_WHITE.r, CYBER_WHITE.g, CYBER_WHITE.b, static_cast<Uint8>(exitAlpha)));
     window.draw(exitText);
@@ -232,7 +364,7 @@ void drawGameTitle(RenderWindow& window, Font& font, Clock& animClock) {
         float angle = (i / 8.0f) * 2 * 3.14159f;
         float x = centerX + cos(angle + time * 0.5f) * 120;
         float y = 30 + sin(angle + time * 0.5f) * 15;
-        
+       
         Color hexColor = (i % 2 == 0) ? NEON_BLUE : NEON_GREEN;
         hexColor.a = 120;
         drawDecorativeHex(window, Vector2f(x, y), 8, hexColor, time * 45.0f);
@@ -289,11 +421,11 @@ void drawAnimatedBackground(RenderWindow& window, Clock& bgClock) {
     for (int i = 0; i < window.getSize().y; i += 3) {
         float gradient = static_cast<float>(i) / window.getSize().y;
         float wave = sin(time * 2.0f + gradient * 8.0f) * 0.2f + 0.8f;
-        
+       
         Color topColor(15, 25, 60);
         Color midColor(25, 45, 90);
         Color bottomColor(35, 55, 110);
-        
+       
         Color currentColor;
         if (gradient < 0.5f) {
             currentColor = lerpColor(topColor, midColor, gradient * 2.0f * wave);
@@ -311,14 +443,14 @@ void drawAnimatedBackground(RenderWindow& window, Clock& bgClock) {
     for (int i = 0; i < 25; ++i) {
         float x = fmod(time * 40.0f + i * 50.0f, window.getSize().x + 100.0f) - 50.0f;
         float y = 100.0f + sin(time * 1.2f + i * 0.5f) * 40.0f + i * 20.0f;
-        
+       
         if (y < window.getSize().y) {
             Color hexColor;
             if (i % 4 == 0) hexColor = NEON_BLUE;
             else if (i % 4 == 1) hexColor = NEON_GREEN;
             else if (i % 4 == 2) hexColor = NEON_PURPLE;
             else hexColor = NEON_ORANGE;
-            
+           
             hexColor.a = 80 + (i % 50);
             drawDecorativeHex(window, Vector2f(x, y), 3 + (i % 3), hexColor, time * 60.0f);
         }
@@ -327,10 +459,10 @@ void drawAnimatedBackground(RenderWindow& window, Clock& bgClock) {
     // Líneas de circuito de fondo
     for (int i = 0; i < 8; ++i) {
         float y = (i * window.getSize().y / 8.0f) + sin(time * 1.5f + i) * 20;
-        
+       
         RectangleShape circuit(Vector2f(window.getSize().x, 1));
         circuit.setPosition(0, y);
-        
+       
         float intensity = sin(time * 3.0f + i * 0.8f) * 0.3f + 0.4f;
         Color circuitColor = NEON_BLUE;
         circuitColor.a = static_cast<Uint8>(50 * intensity);
@@ -352,7 +484,7 @@ void drawModernEnergyBar(RenderWindow& window, const Player& player, Font& font,
     for (int i = 0; i < 3; ++i) {
         float hexX = barX - 20 + i * 20;
         float hexY = barY + 10;
-        
+       
         Color hexColor = NEON_GREEN;
         hexColor.a = 100;
         drawDecorativeHex(window, Vector2f(hexX, hexY), 6, hexColor, time * 90.0f);
@@ -389,12 +521,12 @@ void drawModernEnergyBar(RenderWindow& window, const Player& player, Font& font,
                 static_cast<Uint8>(ELECTRIC_YELLOW.g * pulse),
                 static_cast<Uint8>(ELECTRIC_YELLOW.b)
             );
-            
+           
             // Partículas de energía
             for (int i = 0; i < 5; ++i) {
                 float sparkX = barX + fillWidth * 0.8f + (i * 10);
                 float sparkY = barY + 10 + sin(time * 12.0f + i) * 5;
-                
+               
                 CircleShape spark(2);
                 spark.setPosition(sparkX, sparkY);
                 spark.setFillColor(Color(255, 255, 255, 200));
@@ -420,7 +552,7 @@ void drawModernEnergyBar(RenderWindow& window, const Player& player, Font& font,
             if (lineX < barX + fillWidth - 5) {
                 RectangleShape energyLine(Vector2f(2, barHeight - 6));
                 energyLine.setPosition(lineX, barY + 3);
-                
+               
                 float lineIntensity = sin(time * 10.0f + i * 2.0f) * 0.5f + 0.5f;
                 energyLine.setFillColor(Color(255, 255, 255, static_cast<Uint8>(150 * lineIntensity)));
                 window.draw(energyLine);
@@ -478,9 +610,9 @@ void drawModernEnergyBar(RenderWindow& window, const Player& player, Font& font,
 // Panel de información con temática hexagonal
 void drawGameInfo(RenderWindow& window, Font& font, int turnCount, Clock& animClock) {
     float time = animClock.getElapsedTime().asSeconds();
-    
+   
     // Panel principal con diseño futurista
-    RectangleShape panel(Vector2f(140, 100));
+    RectangleShape panel(Vector2f(140, 120));
     panel.setPosition(window.getSize().x - 160, 80);
     panel.setFillColor(Color(20, 40, 80, 200));
     panel.setOutlineColor(NEON_BLUE);
@@ -491,10 +623,10 @@ void drawGameInfo(RenderWindow& window, Font& font, int turnCount, Clock& animCl
     Vector2f corners[] = {
         Vector2f(window.getSize().x - 155, 85),
         Vector2f(window.getSize().x - 25, 85),
-        Vector2f(window.getSize().x - 155, 175),
-        Vector2f(window.getSize().x - 25, 175)
+        Vector2f(window.getSize().x - 155, 195),
+        Vector2f(window.getSize().x - 25, 195)
     };
-    
+   
     for (int i = 0; i < 4; ++i) {
         Color hexColor = (i % 2 == 0) ? NEON_GREEN : NEON_PURPLE;
         hexColor.a = 120;
@@ -555,15 +687,25 @@ void drawGameInfo(RenderWindow& window, Font& font, int turnCount, Clock& animCl
     statusText.setString("SYSTEM: ONLINE");
     statusText.setPosition(window.getSize().x - 145, 155);
     window.draw(statusText);
+
+    // NUEVA: Indicador de pathfinding
+    Text pathText;
+    pathText.setFont(font);
+    pathText.setCharacterSize(10);
+    pathText.setFillColor(PATH_RED);
+    pathText.setStyle(Text::Bold);
+    pathText.setString("P: SHOW PATH");
+    pathText.setPosition(window.getSize().x - 145, 170);
+    window.draw(pathText);
 }
 
 // Panel de controles con diseño hexagonal
 void drawModernControls(RenderWindow& window, Font& font, Clock& animClock) {
     float time = animClock.getElapsedTime().asSeconds();
-    
+   
     // Panel principal
-    RectangleShape controlPanel(Vector2f(140, 100));
-    controlPanel.setPosition(window.getSize().x - 160, 190);
+    RectangleShape controlPanel(Vector2f(140, 120));
+    controlPanel.setPosition(window.getSize().x - 160, 210);
     controlPanel.setFillColor(Color(20, 40, 80, 200));
     controlPanel.setOutlineColor(NEON_PURPLE);
     controlPanel.setOutlineThickness(2);
@@ -572,8 +714,8 @@ void drawModernControls(RenderWindow& window, Font& font, Clock& animClock) {
     // Hexágonos decorativos en el panel de controles
     for (int i = 0; i < 4; ++i) {
         float hexX = window.getSize().x - 145 + (i % 2) * 30;
-        float hexY = 205 + (i / 2) * 50;
-        
+        float hexY = 225 + (i / 2) * 50;
+       
         Color hexColor = (i % 2 == 0) ? NEON_BLUE : NEON_GREEN;
         hexColor.a = 80;
         drawDecorativeHex(window, Vector2f(hexX, hexY), 5, hexColor, time * 45.0f + i * 60);
@@ -586,30 +728,35 @@ void drawModernControls(RenderWindow& window, Font& font, Clock& animClock) {
     titleText.setFillColor(CYBER_WHITE);
     titleText.setStyle(Text::Bold);
     titleText.setString("CONTROLS");
-    titleText.setPosition(window.getSize().x - 145, 200);
+    titleText.setPosition(window.getSize().x - 145, 220);
     window.draw(titleText);
 
     // Controles simplificados
-    std::vector<std::string> controls = {
-        "W/E: UP",
-        "A/D: SIDE", 
-        "Z/X: DOWN",
-        "SPACE: POWER"
-    };
+    std::vector<std::string> controls;
+    controls.push_back("W/E: UP");
+    controls.push_back("A/D: SIDE");
+    controls.push_back("Z/X: DOWN");
+    controls.push_back("SPACE: POWER");
+    controls.push_back("P: PATH");
 
     for (size_t i = 0; i < controls.size(); ++i) {
         Text controlText;
         controlText.setFont(font);
         controlText.setCharacterSize(10);
-        controlText.setFillColor(CYBER_WHITE);
+        if (i == 4) { // Resaltar el control P
+            controlText.setFillColor(PATH_RED);
+            controlText.setStyle(Text::Bold);
+        } else {
+            controlText.setFillColor(CYBER_WHITE);
+        }
         controlText.setString(controls[i]);
-        controlText.setPosition(window.getSize().x - 145, 220 + i * 14);
+        controlText.setPosition(window.getSize().x - 145, 240 + i * 14);
         window.draw(controlText);
     }
 
     // Línea de separación
     RectangleShape separator(Vector2f(120, 1));
-    separator.setPosition(window.getSize().x - 150, 275);
+    separator.setPosition(window.getSize().x - 150, 315);
     separator.setFillColor(Color(NEON_PURPLE.r, NEON_PURPLE.g, NEON_PURPLE.b, 150));
     window.draw(separator);
 }
@@ -683,14 +830,13 @@ Color getCellColor(CellType type, Clock& animClock) {
     }
 }
 
-// Grid principal con efectos profesionales y hexagonales
+// ******** FUNCIÓN CORREGIDA PARA VECTOR ********
+// Grid principal con efectos profesionales y hexagonales CORREGIDO PARA PATHFINDING
 void drawGrid(RenderWindow& window, const HexGrid& grid,
     Player& player, CircleShape& hexagon,
     Text& text, Font& font, Clock& animClock, Clock& bgClock,
-    std::set<std::pair<int, int>>& pathCells)
+    std::vector<std::pair<int, int>>& pathCells)  // CAMBIO: vector en lugar de set
 {
-
-
     // Dibujar fondo vibrante
     drawAnimatedBackground(window, bgClock);
 
@@ -714,108 +860,127 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
         float radius = 200 + sin(time * 2.0f + i) * 20;
         float x = offsetX + gridWidth/2 + cos(angle + time * 0.3f) * radius;
         float y = offsetY + gridHeight/2 + sin(angle + time * 0.3f) * radius;
-        
+       
         if (x > 0 && x < window.getSize().x - 220 && y > 80 && y < window.getSize().y - 100) {
-            Color hexColor = (i % 3 == 0) ? NEON_BLUE : 
+            Color hexColor = (i % 3 == 0) ? NEON_BLUE :
                             (i % 3 == 1) ? NEON_GREEN : NEON_PURPLE;
             hexColor.a = 60;
             drawDecorativeHex(window, Vector2f(x, y), 8, hexColor, time * 30.0f + i * 30);
         }
     }
 
-    // Dibujar celdas del grid
+    // PASO 1: Dibujar todas las celdas normales con sus efectos
     for (int y = 0; y < grid.rows(); ++y) {
         for (int x = 0; x < grid.cols(); ++x) {
-            const auto& cell = grid.at(y, x);
+            const HexCell& cell = grid.at(y, x);
             Vector2f pos = grid.toPixel(y, x);
 
             pos.x += offsetX;
             pos.y += offsetY;
 
-            // Sombra con efecto de profundidad
-            CircleShape shadow = hexagon;
-            shadow.setPosition(pos.x + 3, pos.y + 3);
-            shadow.setFillColor(Color(0, 0, 0, 120));
-            shadow.setOutlineThickness(0);
-            window.draw(shadow);
+            // NUEVO: Verificar si esta celda está en el path para evitar efectos conflictivos
+            bool isInPath = false;
+            for (const auto& pathCell : pathCells) {
+                if (pathCell.first == y && pathCell.second == x) {
+                    isInPath = true;
+                    break;
+                }
+            }
+
+            // Sombra con efecto de profundidad (solo si no está en el path)
+            if (!isInPath) {
+                CircleShape shadow = hexagon;
+                shadow.setPosition(pos.x + 3, pos.y + 3);
+                shadow.setFillColor(Color(0, 0, 0, 120));
+                shadow.setOutlineThickness(0);
+                window.draw(shadow);
+            }
 
             // Hexágono principal
             hexagon.setPosition(pos);
             hexagon.setFillColor(getCellColor(cell.type, animClock));
 
-            // Efectos especiales por tipo de celda
+            // Efectos especiales por tipo de celda (REDUCIDOS si está en el path)
             if (cell.type == CellType::GOAL) {
-                // Anillos de energía para la meta
-                for (int i = 0; i < 3; ++i) {
-                    CircleShape ring(30 + i * 10, 6);
-                    ring.setOrigin(30 + i * 10, 30 + i * 10);
-                    ring.setPosition(pos);
-                    ring.setFillColor(Color::Transparent);
-                    
-                    float ringIntensity = sin(time * 4.0f + i * 2.0f) * 0.4f + 0.6f;
-                    Color ringColor = ELECTRIC_YELLOW;
-                    ringColor.a = static_cast<Uint8>(100 * ringIntensity);
-                    ring.setOutlineColor(ringColor);
-                    ring.setOutlineThickness(2);
-                    ring.rotate(time * 45.0f * (i + 1));
-                    window.draw(ring);
+                // Anillos de energía para la meta (reducidos si está en path)
+                if (!isInPath) {
+                    for (int i = 0; i < 3; ++i) {
+                        CircleShape ring(30 + i * 10, 6);
+                        ring.setOrigin(30 + i * 10, 30 + i * 10);
+                        ring.setPosition(pos);
+                        ring.setFillColor(Color::Transparent);
+                       
+                        float ringIntensity = sin(time * 4.0f + i * 2.0f) * 0.4f + 0.6f;
+                        Color ringColor = ELECTRIC_YELLOW;
+                        ringColor.a = static_cast<Uint8>(100 * ringIntensity);
+                        ring.setOutlineColor(ringColor);
+                        ring.setOutlineThickness(2);
+                        ring.rotate(time * 45.0f * (i + 1));
+                        window.draw(ring);
+                    }
                 }
 
                 hexagon.setOutlineColor(ELECTRIC_YELLOW);
                 hexagon.setOutlineThickness(4);
             }
             else if (cell.type == CellType::START) {
-                // Pulso verde para el inicio
-                CircleShape pulse(35, 6);
-                pulse.setOrigin(35, 35);
-                pulse.setPosition(pos);
-                pulse.setFillColor(Color::Transparent);
-                
-                float pulseIntensity = sin(time * 3.0f) * 0.5f + 0.5f;
-                Color pulseColor = NEON_GREEN;
-                pulseColor.a = static_cast<Uint8>(120 * pulseIntensity);
-                pulse.setOutlineColor(pulseColor);
-                pulse.setOutlineThickness(3);
-                window.draw(pulse);
+                // Pulso verde para el inicio (reducido si está en path)
+                if (!isInPath) {
+                    CircleShape pulse(35, 6);
+                    pulse.setOrigin(35, 35);
+                    pulse.setPosition(pos);
+                    pulse.setFillColor(Color::Transparent);
+                   
+                    float pulseIntensity = sin(time * 3.0f) * 0.5f + 0.5f;
+                    Color pulseColor = NEON_GREEN;
+                    pulseColor.a = static_cast<Uint8>(120 * pulseIntensity);
+                    pulse.setOutlineColor(pulseColor);
+                    pulse.setOutlineThickness(3);
+                    window.draw(pulse);
+                }
 
                 hexagon.setOutlineColor(NEON_GREEN);
                 hexagon.setOutlineThickness(3);
             }
             else if (cell.type == CellType::ITEM) {
-                // Efecto de cristal para items
-                float itemSparkle = sin(time * 8.0f) * 0.4f + 0.6f;
-                
-                CircleShape crystal(32, 6);
-                crystal.setOrigin(32, 32);
-                crystal.setPosition(pos);
-                crystal.setFillColor(Color::Transparent);
-                crystal.setOutlineColor(Color(
-                    static_cast<Uint8>(NEON_PURPLE.r * itemSparkle),
-                    static_cast<Uint8>(NEON_PURPLE.g * itemSparkle),
-                    static_cast<Uint8>(NEON_PURPLE.b * itemSparkle)
-                ));
-                crystal.setOutlineThickness(2);
-                window.draw(crystal);
-                
+                // Efecto de cristal para items (reducido si está en path)
+                if (!isInPath) {
+                    float itemSparkle = sin(time * 8.0f) * 0.4f + 0.6f;
+                   
+                    CircleShape crystal(32, 6);
+                    crystal.setOrigin(32, 32);
+                    crystal.setPosition(pos);
+                    crystal.setFillColor(Color::Transparent);
+                    crystal.setOutlineColor(Color(
+                        static_cast<Uint8>(NEON_PURPLE.r * itemSparkle),
+                        static_cast<Uint8>(NEON_PURPLE.g * itemSparkle),
+                        static_cast<Uint8>(NEON_PURPLE.b * itemSparkle)
+                    ));
+                    crystal.setOutlineThickness(2);
+                    window.draw(crystal);
+                }
+               
                 hexagon.setOutlineColor(NEON_PURPLE);
                 hexagon.setOutlineThickness(3);
             }
             else if (cell.type >= CellType::UP_RIGHT && cell.type <= CellType::DOWN_LEFT) {
-                // Efectos de flujo para bandas transportadoras
-                float flowEffect = sin(time * 6.0f + x + y) * 0.4f + 0.6f;
-                
-                CircleShape flow(28, 6);
-                flow.setOrigin(28, 28);
-                flow.setPosition(pos);
-                flow.setFillColor(Color::Transparent);
-                flow.setOutlineColor(Color(
-                    static_cast<Uint8>(NEON_BLUE.r * flowEffect),
-                    static_cast<Uint8>(NEON_BLUE.g * flowEffect),
-                    static_cast<Uint8>(NEON_BLUE.b * flowEffect)
-                ));
-                flow.setOutlineThickness(2);
-                window.draw(flow);
-                
+                // Efectos de flujo para bandas transportadoras (reducidos si está en path)
+                if (!isInPath) {
+                    float flowEffect = sin(time * 6.0f + x + y) * 0.4f + 0.6f;
+                   
+                    CircleShape flow(28, 6);
+                    flow.setOrigin(28, 28);
+                    flow.setPosition(pos);
+                    flow.setFillColor(Color::Transparent);
+                    flow.setOutlineColor(Color(
+                        static_cast<Uint8>(NEON_BLUE.r * flowEffect),
+                        static_cast<Uint8>(NEON_BLUE.g * flowEffect),
+                        static_cast<Uint8>(NEON_BLUE.b * flowEffect)
+                    ));
+                    flow.setOutlineThickness(2);
+                    window.draw(flow);
+                }
+               
                 hexagon.setOutlineColor(NEON_BLUE);
                 hexagon.setOutlineThickness(2);
             }
@@ -827,27 +992,128 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
                 hexagon.setOutlineColor(Color(120, 140, 160));
                 hexagon.setOutlineThickness(1);
             }
-            // Si la celda está en el path, resáltala
-            if (pathCells.count({ cell.row, cell.col })) {
-                hexagon.setOutlineColor(sf::Color::Red); // o el color que quieras
-                hexagon.setOutlineThickness(4.f); // grosor para que resalte
-            }
-           
-            
 
             window.draw(hexagon);
 
-            // Texto con mejor contraste
-            text.setString(CellTypeToString(cell.type));
-            text.setCharacterSize(14);
-            text.setStyle(Text::Bold);
-            text.setFillColor(Color(30, 30, 50));
-            text.setPosition(pos.x - 7.f, pos.y - 7.f);
-            window.draw(text);
+            // Texto con mejor contraste (solo si no está en el path para evitar sobreposición)
+            if (!isInPath) {
+                text.setString(CellTypeToString(cell.type));
+                text.setCharacterSize(14);
+                text.setStyle(Text::Bold);
+                text.setFillColor(Color(30, 30, 50));
+                text.setPosition(pos.x - 7.f, pos.y - 7.f);
+                window.draw(text);
+            }
         }
     }
 
-    // Dibujar jugador con efectos avanzados
+    // PASO 2: DIBUJAR PATHFINDING CON ORDEN CORRECTO
+    if (!pathCells.empty()) {
+        // 1. DIBUJAR HEXÁGONOS BASE DEL PATH EN ORDEN CORRECTO
+        for (size_t i = 0; i < pathCells.size(); ++i) {
+            const std::pair<int, int>& pathCell = pathCells[i];
+            Vector2f pos = grid.toPixel(pathCell.first, pathCell.second);
+            pos.x += offsetX;
+            pos.y += offsetY;
+           
+            // Sombra especial para el path
+            CircleShape pathShadow(32, 6);
+            pathShadow.setOrigin(32, 32);
+            pathShadow.setPosition(pos.x + 4, pos.y + 4);
+            pathShadow.setFillColor(Color(255, 0, 0, 80));
+            pathShadow.setOutlineThickness(0);
+            window.draw(pathShadow);
+           
+            // Hexágono exterior rojo GRANDE y VISIBLE
+            CircleShape pathHexOuter(32, 6);
+            pathHexOuter.setOrigin(32, 32);
+            pathHexOuter.setPosition(pos);
+            pathHexOuter.setFillColor(Color::Transparent);
+            pathHexOuter.setOutlineColor(Color(255, 0, 0, 255)); // Rojo sólido intenso
+            pathHexOuter.setOutlineThickness(8); // MÁS GRUESO
+            window.draw(pathHexOuter);
+           
+            // Hexágono intermedio para contraste
+            CircleShape pathHexMid(28, 6);
+            pathHexMid.setOrigin(28, 28);
+            pathHexMid.setPosition(pos);
+            pathHexMid.setFillColor(Color(255, 50, 50, 120)); // Relleno rojo semi-transparente
+            pathHexMid.setOutlineColor(Color(255, 255, 255, 220));
+            pathHexMid.setOutlineThickness(3);
+            window.draw(pathHexMid);
+           
+            // Hexágono interior blanco para máximo contraste
+            CircleShape pathHexInner(24, 6);
+            pathHexInner.setOrigin(24, 24);
+            pathHexInner.setPosition(pos);
+            pathHexInner.setFillColor(Color(255, 255, 255, 100));
+            pathHexInner.setOutlineColor(Color(200, 200, 200));
+            pathHexInner.setOutlineThickness(1);
+            window.draw(pathHexInner);
+        }
+       
+        // 2. DIBUJAR NÚMEROS DE SECUENCIA EN EL ORDEN CORRECTO
+        for (size_t i = 0; i < pathCells.size(); ++i) {
+            const std::pair<int, int>& pathCell = pathCells[i];
+            Vector2f pos = grid.toPixel(pathCell.first, pathCell.second);
+            pos.x += offsetX;
+            pos.y += offsetY;
+           
+            // Círculo de fondo EXTRA GRANDE para el número
+            CircleShape numberBg(18);
+            numberBg.setOrigin(18, 18);
+            numberBg.setPosition(pos);
+            numberBg.setFillColor(Color(0, 0, 0, 240)); // Fondo más opaco
+            numberBg.setOutlineColor(Color(255, 255, 255));
+            numberBg.setOutlineThickness(4); // Borde más grueso
+            window.draw(numberBg);
+           
+            // Número de secuencia CORRECTO (i+1 en orden del vector)
+            Text seqNumber;
+            seqNumber.setFont(font);
+            seqNumber.setCharacterSize(20); // MÁS GRANDE
+            seqNumber.setStyle(Text::Bold);
+            seqNumber.setFillColor(Color::White);
+            seqNumber.setString(std::to_string(static_cast<int>(i + 1))); // ORDEN CORRECTO
+           
+            // Centrar el texto perfectamente
+            FloatRect bounds = seqNumber.getLocalBounds();
+            seqNumber.setOrigin(bounds.width / 2, bounds.height / 2);
+            seqNumber.setPosition(pos);
+            window.draw(seqNumber);
+        }
+       
+        // 3. MARCADORES ESPECIALES PARA INICIO Y FIN
+        if (!pathCells.empty()) {
+            // Marcador de INICIO (verde) - PRIMERA CELDA DEL VECTOR
+            Vector2f startPos = grid.toPixel(pathCells[0].first, pathCells[0].second);
+            startPos.x += offsetX;
+            startPos.y += offsetY;
+           
+            CircleShape startMarker(40, 6);
+            startMarker.setOrigin(40, 40);
+            startMarker.setPosition(startPos);
+            startMarker.setFillColor(Color::Transparent);
+            startMarker.setOutlineColor(NEON_GREEN);
+            startMarker.setOutlineThickness(6);
+            window.draw(startMarker);
+           
+            // Marcador de FIN (amarillo) - ÚLTIMA CELDA DEL VECTOR
+            Vector2f endPos = grid.toPixel(pathCells.back().first, pathCells.back().second);
+            endPos.x += offsetX;
+            endPos.y += offsetY;
+           
+            CircleShape endMarker(40, 6);
+            endMarker.setOrigin(40, 40);
+            endMarker.setPosition(endPos);
+            endMarker.setFillColor(Color::Transparent);
+            endMarker.setOutlineColor(ELECTRIC_YELLOW);
+            endMarker.setOutlineThickness(6);
+            window.draw(endMarker);
+        }
+    }
+
+    // PASO 3: Dibujar jugador con efectos avanzados (por encima de TODO)
     CircleShape playerCircle(16);
     Vector2f playerPos = player.getVisualPosition(grid);
 
@@ -878,14 +1144,14 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
             static_cast<Uint8>(ELECTRIC_YELLOW.g * pulse),
             static_cast<Uint8>(ELECTRIC_YELLOW.b)
         );
-        
+       
         // Aura de poder hexagonal
         for (int i = 0; i < 3; ++i) {
             CircleShape powerHex(25 + i * 8, 6);
             powerHex.setOrigin(25 + i * 8, 25 + i * 8);
             powerHex.setPosition(playerPos);
             powerHex.setFillColor(Color::Transparent);
-            
+           
             Color auraColor = ELECTRIC_YELLOW;
             auraColor.a = 80 - i * 20;
             powerHex.setOutlineColor(auraColor);
@@ -896,7 +1162,7 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
     }
     else if (player.isSelectingWall) {
         playerColor = NEON_ORANGE;
-        
+       
         // Retícula de selección hexagonal
         CircleShape targetHex(30, 6);
         targetHex.setOrigin(30, 30);

@@ -4,10 +4,13 @@
 #include <vector>
 
 
+
+
 struct PathfindingResult {
     std::vector<model::HexCell*> path;
     bool success;
 };
+
 
 PathfindingResult findPath(
     model::HexGrid& grid,
@@ -15,3 +18,4 @@ PathfindingResult findPath(
     int goalRow, int goalCol,
     int initialEnergy
 );
+

@@ -10,7 +10,7 @@
 #include "render/Renderer.hpp"
 #include "core/PathFinding.hpp"
 #include <iostream>
-#include <set>
+#include <vector>  // CAMBIO: vector en lugar de set
 
 // Definición de constantes para la ventana y recursos
 #define WINDOW_WIDTH 900  // Aumentado para mejor UI
@@ -28,13 +28,13 @@ int main()
 
     // Obtener celda de inicio
     HexCell* start = findStartCell(grid);
-	// Obtener celda de meta
-	HexCell* goal = findGoalCell(grid);
+    // Obtener celda de meta
+    HexCell* goal = findGoalCell(grid);
 
     if (!start)
         return 1;
-	if (!goal)
-		return 1;
+    if (!goal)
+        return 1;
 
     // Crear el jugador en la posición inicial
     Player player(start->row, start->col);
@@ -43,8 +43,8 @@ int main()
     TurnSystem::resetTurnCounter();
 
     // Crear la ventana de renderizado con resolución mejorada
-    RenderWindow window({ WINDOW_WIDTH, WINDOW_HEIGHT }, 
-        "🎮 HexEscape: Fábrica de Rompecabezas Elite 🏭", 
+    RenderWindow window({ WINDOW_WIDTH, WINDOW_HEIGHT },
+        "🎮 HexEscape: Fábrica de Rompecabezas Elite 🏭",
         Style::Titlebar | Style::Close);
     window.setFramerateLimit(60); // 60 FPS para animaciones ultra suaves
 
@@ -67,9 +67,7 @@ int main()
     // Variables de estado del juego
     bool gameWon = false;
     bool showVictoryScreen = false;
-    std::set<std::pair<int, int>> pathCells;
-
-
+    std::vector<std::pair<int, int>> pathCells;  // CAMBIO: vector en lugar de set
 
     // Bucle principal del juego ultra optimizado
     while (window.isOpen())
@@ -79,7 +77,7 @@ int main()
         {
             if (event.type == Event::Closed)
                 window.close();
-                
+               
             if (event.type == Event::KeyPressed)
             {
                 // Si ya ganó, solo permitir salir con ESC
@@ -91,13 +89,16 @@ int main()
                 else if (event.key.code == Keyboard::P) {
                     PathfindingResult path = findPath(grid, player.row, player.col, goal->row, goal->col, player.energy);
 
-					for (const auto& cell : path.path) {
-						std::cout << "(" << cell->row << ", " << cell->col << ") ";
-					}
-					std::cout << "\n";
+                    for (const auto& cell : path.path) {
+                        std::cout << "(" << cell->row << ", " << cell->col << ") ";
+                    }
+                    std::cout << "\n";
 
+                    // CORREGIDO: Limpiar y llenar el vector en el orden correcto
+                    pathCells.clear();
+                    
                     for (auto* cell : path.path) {
-                        pathCells.emplace(cell->row, cell->col);
+                        pathCells.emplace_back(cell->row, cell->col);  // CAMBIO: emplace_back mantiene el orden
                     }
                 }
                 else {
@@ -105,7 +106,6 @@ int main()
                     handlePlayerMovement(event.key.code, player, grid);
                 }
             }
-          
         }
 
         // Verificar condición de victoria
@@ -125,7 +125,7 @@ int main()
 
         if (showVictoryScreen) {
             // Mostrar pantalla de victoria épica
-            drawVictoryScreen(window, font, player.winTime, 
+            drawVictoryScreen(window, font, player.winTime,
                             TurnSystem::getCurrentTurnCount(), victoryClock);
         }
         else {
