@@ -26,6 +26,10 @@ namespace model
 
         model::CellType lastCellType = model::CellType::EMPTY;
 
+
+        //Movimiento automático
+        bool isAutoMoving = false;
+
         // Sistema de animación para el movimiento
         bool isMoving = false;
         sf::Vector2f startPosition;

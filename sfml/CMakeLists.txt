@@ -24,6 +24,7 @@ add_executable(main
     src/core/GameLogic.cpp
     src/core/TurnSystem.cpp
     src/core/PathFinding.cpp
+    src/core/AutoMovement.cpp
 
     # Render
     src/render/Renderer.cpp

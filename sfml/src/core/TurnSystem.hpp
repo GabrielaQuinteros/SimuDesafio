@@ -22,6 +22,7 @@ private:
     static void initializeRandom();
 
 public:
+    static constexpr int ENERGY_PER_WALL_BREAK = 5;
     // Método principal para manejar el sistema de turnos
     static void handleTurn(HexGrid &grid, const Player &player);
 

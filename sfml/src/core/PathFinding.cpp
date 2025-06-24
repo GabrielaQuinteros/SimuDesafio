@@ -1,7 +1,4 @@
-#pragma once
-
-
-#include "Pathfinding.hpp"
+#include "PathFinding.hpp"
 #include "model/HexGrid.hpp"
 #include "../utils/Utils.hpp"  // Para usar getConveyorOffset
 #include <queue>
@@ -14,7 +11,6 @@
 
 // Energía máxima para romper pared
 constexpr int MAX_ENERGY = 10;
-
 
 struct State {
     int row, col;
@@ -50,8 +46,6 @@ std::pair<int, int> getTransportDirection(model::CellType type, int row) {
     }
 }
 
-
-// CORREGIDO: Simular exactamente el mismo comportamiento que handleConveyorMovement
 std::tuple<int, int, int> slideThroughBands(model::HexGrid& grid, int row, int col, int energy) {
     std::cout << "Simulando bandas desde (" << row << ", " << col << ") con energía " << energy << std::endl;
    
@@ -59,29 +53,13 @@ std::tuple<int, int, int> slideThroughBands(model::HexGrid& grid, int row, int c
         const auto& cell = grid.at(row, col);
         auto type = cell.type;
        
-        // Verificar si es una banda transportadora (usando el mismo rango que en GameLogic.cpp)
         if (!(type >= model::CellType::UP_RIGHT && type <= model::CellType::DOWN_LEFT)) {
             std::cout << "  No es banda transportadora, parando en (" << row << ", " << col << ")" << std::endl;
-            break; // No es banda transportadora
+            break; 
         }
 
-
-        // Debug: mostrar qué banda es
         std::string bandName;
-        switch(type) {
-            case model::CellType::UP_RIGHT: bandName = "A (UP_RIGHT)"; break;
-            case model::CellType::RIGHT: bandName = "B (RIGHT)"; break;
-            case model::CellType::DOWN_RIGHT: bandName = "C (DOWN_RIGHT)"; break;
-            case model::CellType::DOWN_LEFT: bandName = "D (DOWN_LEFT)"; break;
-            case model::CellType::LEFT: bandName = "E (LEFT)"; break;
-            case model::CellType::UP_LEFT: bandName = "F (UP_LEFT)"; break;
-            default: bandName = "DESCONOCIDA"; break;
-        }
-       
-        std::cout << "  En banda " << bandName << " en (" << row << ", " << col << ")" << std::endl;
 
-
-        // Usar las direcciones corregidas
         bool isOdd = row % 2 != 0;
         auto offset = getTransportDirection(type, row);
         int nr = row + offset.first;

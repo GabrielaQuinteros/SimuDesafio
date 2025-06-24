@@ -9,8 +9,9 @@
 #include "core/TurnSystem.hpp"
 #include "render/Renderer.hpp"
 #include "core/PathFinding.hpp"
+#include "core/AutoMovement.hpp"
 #include <iostream>
-#include <vector>  // CAMBIO: vector en lugar de set
+#include <vector> // CAMBIO: vector en lugar de set
 
 // Definición de constantes para la ventana y recursos
 #define WINDOW_WIDTH 900  // Aumentado para mejor UI
@@ -27,9 +28,9 @@ int main()
     HexGrid grid = loadHexGridFromFile(MAP_PATH);
 
     // Obtener celda de inicio
-    HexCell* start = findStartCell(grid);
+    HexCell *start = findStartCell(grid);
     // Obtener celda de meta
-    HexCell* goal = findGoalCell(grid);
+    HexCell *goal = findGoalCell(grid);
 
     if (!start)
         return 1;
@@ -43,9 +44,9 @@ int main()
     TurnSystem::resetTurnCounter();
 
     // Crear la ventana de renderizado con resolución mejorada
-    RenderWindow window({ WINDOW_WIDTH, WINDOW_HEIGHT },
-        "🎮 HexEscape: Fábrica de Rompecabezas Elite 🏭",
-        Style::Titlebar | Style::Close);
+    RenderWindow window({WINDOW_WIDTH, WINDOW_HEIGHT},
+                        "HexEscape: Fabrica de Rompecabezas Elite",
+                        Style::Titlebar | Style::Close);
     window.setFramerateLimit(60); // 60 FPS para animaciones ultra suaves
 
     // Cargar la fuente para el texto
@@ -67,7 +68,7 @@ int main()
     // Variables de estado del juego
     bool gameWon = false;
     bool showVictoryScreen = false;
-    std::vector<std::pair<int, int>> pathCells;  // CAMBIO: vector en lugar de set
+    std::vector<std::pair<int, int>> pathCells; // CAMBIO: vector en lugar de set
 
     // Bucle principal del juego ultra optimizado
     while (window.isOpen())
@@ -77,58 +78,83 @@ int main()
         {
             if (event.type == Event::Closed)
                 window.close();
-               
+
             if (event.type == Event::KeyPressed)
             {
                 // Si ya ganó, solo permitir salir con ESC
-                if (event.key.code == Keyboard::Escape) {
-                    if (showVictoryScreen) {
+                if (event.key.code == Keyboard::Escape)
+                {
+                    if (showVictoryScreen)
+                    {
                         window.close();
                     }
                 }
-                else if (event.key.code == Keyboard::P) {
+                else if (event.key.code == Keyboard::P)
+                {
                     PathfindingResult path = findPath(grid, player.row, player.col, goal->row, goal->col, player.energy);
 
-                    for (const auto& cell : path.path) {
+                    for (const auto &cell : path.path)
+                    {
                         std::cout << "(" << cell->row << ", " << cell->col << ") ";
                     }
                     std::cout << "\n";
 
                     // CORREGIDO: Limpiar y llenar el vector en el orden correcto
                     pathCells.clear();
-                    
-                    for (auto* cell : path.path) {
-                        pathCells.emplace_back(cell->row, cell->col);  // CAMBIO: emplace_back mantiene el orden
+
+                    pathCells.clear();
+                    for (auto *cell : path.path)
+                    {
+                        int r = cell->row, c = cell->col;
+                        // Ignoramos el primer paso si es la posición actual
+                        if (r == player.row && c == player.col)
+                            continue;
+                        pathCells.emplace_back(r, c);
                     }
                 }
-                else {
+                if (!pathCells.empty())
+                {
+                    player.isAutoMoving = true;
+                    std::cout << "AutoMovement activado con " << pathCells.size() << " pasos.\n";
+                }
+
+                else
+                {
                     // Juego normal
                     handlePlayerMovement(event.key.code, player, grid);
                 }
             }
         }
 
+        core::updateAutoMovement(
+            grid, player, pathCells,
+            goal->row, goal->col);
+
         // Verificar condición de victoria
-        if (!gameWon && player.hasWon) {
+        if (!gameWon && player.hasWon)
+        {
             gameWon = true;
             showVictoryScreen = true;
             victoryClock.restart(); // Iniciar efectos de victoria
         }
 
         // Aplicar efectos de bandas transportadoras solo si no ha ganado
-        if (!showVictoryScreen) {
+        if (!showVictoryScreen)
+        {
             handleConveyorMovement(player, grid);
         }
 
         // Limpiar ventana con color de fondo ultra moderno
         window.clear(Color(5, 10, 20)); // Fondo más oscuro y profesional
 
-        if (showVictoryScreen) {
+        if (showVictoryScreen)
+        {
             // Mostrar pantalla de victoria épica
             drawVictoryScreen(window, font, player.winTime,
-                            TurnSystem::getCurrentTurnCount(), victoryClock);
+                              TurnSystem::getCurrentTurnCount(), victoryClock);
         }
-        else {
+        else
+        {
             // Dibujar el juego normal con interfaz ultra moderna
             drawGrid(window, grid, player, hexagon, texto, font, animationClock, backgroundClock, pathCells);
 
