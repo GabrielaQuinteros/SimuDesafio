@@ -3,8 +3,10 @@
 #include <fstream>
 #include <iostream>
 
+
 using namespace model;
 using namespace std;
+
 
 HexGrid loadHexGridFromFile(const string &filepath)
 {
@@ -15,8 +17,10 @@ HexGrid loadHexGridFromFile(const string &filepath)
         return HexGrid(0, 0);
     }
 
+
     vector<string> lines;
     string line;
+
 
     while (getline(file, line))
     {
@@ -24,9 +28,11 @@ HexGrid loadHexGridFromFile(const string &filepath)
             lines.push_back(line);
     }
 
+
     int rows = lines.size();
     int cols = lines.empty() ? 0 : lines[0].size();
     HexGrid grid(rows, cols);
+
 
     for (int r = 0; r < rows; ++r)
     {
@@ -34,6 +40,7 @@ HexGrid loadHexGridFromFile(const string &filepath)
         {
             char ch = lines[r][c];
             CellType type;
+
 
             switch (ch)
             {
@@ -72,12 +79,15 @@ HexGrid loadHexGridFromFile(const string &filepath)
                 break;
             }
 
+
             grid.at(r, c).type = type;
         }
     }
 
+
     return grid;
 }
+
 
 string CellTypeToString(CellType type)
 {
@@ -110,3 +120,7 @@ string CellTypeToString(CellType type)
         return "?";
     }
 }
+
+
+
+

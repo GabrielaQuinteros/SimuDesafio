@@ -6,8 +6,10 @@
 #include <SFML/System.hpp>
 #include <iostream>
 
+
 using namespace model;
 using namespace sf;
+
 
 HexCell* findStartCell(HexGrid& grid) {
     for (int y = 0; y < grid.rows(); ++y) {
@@ -20,21 +22,24 @@ HexCell* findStartCell(HexGrid& grid) {
     return nullptr;
 }
 
+
 HexCell* findGoalCell(HexGrid& grid) {
-	for (int y = 0; y < grid.rows(); ++y) {
-		for (int x = 0; x < grid.cols(); ++x) {
-			if (grid.at(y, x).type == CellType::GOAL)
-				return &grid.at(y, x);
-		}
-	}
-	std::cerr << "No se encontró celda de meta (GOAL)\n";
-	return nullptr;
+    for (int y = 0; y < grid.rows(); ++y) {
+        for (int x = 0; x < grid.cols(); ++x) {
+            if (grid.at(y, x).type == CellType::GOAL)
+                return &grid.at(y, x);
+        }
+    }
+    std::cerr << "No se encontró celda de meta (GOAL)\n";
+    return nullptr;
 }
+
 
 void handlePlayerMovement(Keyboard::Key key, Player& player, HexGrid& grid) {
     // No permitir movimiento manual si el jugador está siendo animado
     if (player.isMoving)
         return;
+
 
     // NUEVO: Manejar la selección de pared si está en modo selección
     if (player.isSelectingWall) {
@@ -49,6 +54,7 @@ void handlePlayerMovement(Keyboard::Key key, Player& player, HexGrid& grid) {
             return;
         }
     }
+
 
     // Manejar la activación del modo de selección de pared con SPACE
     if (key == Keyboard::Space) {
@@ -67,11 +73,13 @@ void handlePlayerMovement(Keyboard::Key key, Player& player, HexGrid& grid) {
         }
     }
 
+
     // Movimiento normal del jugador
     int row = player.row, col = player.col;
     int newRow = row, newCol = col;
     bool isOdd = row % 2 != 0;
     bool moved = false;
+
 
     // Movimiento en el grid según la tecla presionada
     if (key == Keyboard::W) {
@@ -105,9 +113,11 @@ void handlePlayerMovement(Keyboard::Key key, Player& player, HexGrid& grid) {
         moved = true;
     }
 
+
     // Revisa que el siguiente paso no sea 'out of bounds'
     if (moved && newRow >= 0 && newRow < grid.rows() && newCol >= 0 && newCol < grid.cols()) {
         const auto& target = grid.at(newRow, newCol);
+
 
         if (target.type != CellType::WALL) {
             // Iniciar animación de movimiento
@@ -115,9 +125,11 @@ void handlePlayerMovement(Keyboard::Key key, Player& player, HexGrid& grid) {
             Vector2f targetPos = grid.toPixel(newRow, newCol);
             player.startMovement(startPos, targetPos);
 
+
             player.lastCellType = grid.at(player.row, player.col).type;
             player.row = newRow;
             player.col = newCol;
+
 
             // ¡NUEVO! Verificar si llegó a la meta
             if (target.type == CellType::GOAL) {
@@ -127,8 +139,10 @@ void handlePlayerMovement(Keyboard::Key key, Player& player, HexGrid& grid) {
                 return; // No ganar energía ni manejar turnos cuando gana
             }
 
+
             // Ganar energía al moverse exitosamente
             player.gainEnergy();
+
 
             // Manejar el sistema de turnos después de un movimiento exitoso
             TurnSystem::handleTurn(grid, player);
@@ -136,13 +150,16 @@ void handlePlayerMovement(Keyboard::Key key, Player& player, HexGrid& grid) {
     }
 }
 
+
 void handleWallBreak(Keyboard::Key key, Player& player, HexGrid& grid) {
     if (!player.canUseWallBreak() || !player.isSelectingWall) {
         return;
     }
 
+
     // Obtener la posición de la pared en la dirección seleccionada
     auto [wallRow, wallCol] = getWallPositionInDirection(player, key, grid);
+
 
     // Verificar si hay una pared en esa dirección
     if (wallRow == -1 || wallCol == -1) {
@@ -150,11 +167,13 @@ void handleWallBreak(Keyboard::Key key, Player& player, HexGrid& grid) {
         return;
     }
 
+
     // Verificar que esté dentro de los límites
     if (wallRow < 0 || wallRow >= grid.rows() || wallCol < 0 || wallCol >= grid.cols()) {
         std::cout << "Posición fuera de los límites del grid." << std::endl;
         return;
     }
+
 
     // Verificar que efectivamente sea una pared
     if (grid.at(wallRow, wallCol).type != CellType::WALL) {
@@ -162,19 +181,23 @@ void handleWallBreak(Keyboard::Key key, Player& player, HexGrid& grid) {
         return;
     }
 
+
     // Romper la pared (convertirla en celda vacía)
     grid.at(wallRow, wallCol).type = CellType::EMPTY;
+
 
     // Usar la habilidad (resetea la energía)
     player.useWallBreak();
     player.isSelectingWall = false; // Salir del modo selección
 
+
     std::cout << "¡Pared rota en posición (" << wallRow << ", " << wallCol << ")!" << std::endl;
 }
 
+
 std::pair<int, int> getDirectionalOffset(sf::Keyboard::Key key, int currentRow) {
     bool isOdd = currentRow % 2 != 0;
-    
+   
     switch (key) {
         case Keyboard::W: // Arriba-izquierda
             return {-1, isOdd ? 0 : -1};
@@ -193,32 +216,37 @@ std::pair<int, int> getDirectionalOffset(sf::Keyboard::Key key, int currentRow) 
     }
 }
 
+
 bool isValidWallBreakDirection(sf::Keyboard::Key key) {
-    return (key == Keyboard::W || key == Keyboard::E || 
-            key == Keyboard::A || key == Keyboard::D || 
+    return (key == Keyboard::W || key == Keyboard::E ||
+            key == Keyboard::A || key == Keyboard::D ||
             key == Keyboard::Z || key == Keyboard::X);
 }
 
+
 std::pair<int, int> getWallPositionInDirection(const Player& player, sf::Keyboard::Key direction, const HexGrid& grid) {
     auto [deltaRow, deltaCol] = getDirectionalOffset(direction, player.row);
-    
+   
     int wallRow = player.row + deltaRow;
     int wallCol = player.col + deltaCol;
-    
+   
     // Verificar límites
     if (wallRow < 0 || wallRow >= grid.rows() || wallCol < 0 || wallCol >= grid.cols()) {
         return {-1, -1}; // Posición inválida
     }
-    
+   
     return {wallRow, wallCol};
 }
+
 
 std::vector<std::pair<int, int>> findAdjacentWalls(const Player& player, const HexGrid& grid) {
     std::vector<std::pair<int, int>> walls;
 
+
     // Usar el sistema de vecinos del HexGrid
     HexCell currentCell(player.row, player.col, CellType::EMPTY);
     auto neighbors = const_cast<HexGrid&>(grid).neighbors(currentCell);
+
 
     for (const auto* neighbor : neighbors) {
         if (neighbor && neighbor->type == CellType::WALL) {
@@ -226,22 +254,28 @@ std::vector<std::pair<int, int>> findAdjacentWalls(const Player& player, const H
         }
     }
 
+
     return walls;
 }
+
 
 void handleConveyorMovement(Player& player, const HexGrid& grid) {
     if (player.isMoving || player.hasWon) // No mover si ya ganó
         return;
 
+
     const HexCell& current = grid.at(player.row, player.col);
+
 
     if (!(current.type >= CellType::UP_RIGHT && current.type <= CellType::DOWN_LEFT))
         return;
+
 
     bool isOdd = player.row % 2 != 0;
     std::pair<int, int> offset = getConveyorOffset(current.type, isOdd);
     int newRow = player.row + offset.first;
     int newCol = player.col + offset.second;
+
 
     if (newRow >= 0 && newRow < grid.rows() && newCol >= 0 && newCol < grid.cols()) {
         const auto& target = grid.at(newRow, newCol);
@@ -250,9 +284,11 @@ void handleConveyorMovement(Player& player, const HexGrid& grid) {
             Vector2f targetPos = grid.toPixel(newRow, newCol);
             player.startMovement(startPos, targetPos);
 
+
             player.lastCellType = current.type;
             player.row = newRow;
             player.col = newCol;
+
 
             // Verificar victoria también en movimiento por banda transportadora
             if (target.type == CellType::GOAL) {
@@ -261,6 +297,7 @@ void handleConveyorMovement(Player& player, const HexGrid& grid) {
                 std::cout << "¡¡¡VICTORIA!!! Has llegado a la meta!" << std::endl;
                 return;
             }
+
 
             // Ganar energía también al moverse por banda transportadora
             player.gainEnergy();

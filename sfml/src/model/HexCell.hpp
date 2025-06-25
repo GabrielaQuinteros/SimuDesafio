@@ -1,7 +1,9 @@
 #pragma once
 
+
 namespace model
 {
+
 
     //Tipos de celdas
     enum class CellType
@@ -20,15 +22,18 @@ namespace model
         DOWN_LEFT,
     };
 
+
     struct HexCell
     {
         int row, col;
         CellType type;
-        //Verifica si el jugador estás obre la celda 
+        //Verifica si el jugador estás obre la celda
         bool hasPlayer = false;
+
 
         HexCell(int r, int c, CellType t) //Fila, columna y tipo de celda
             : row(r), col(c), type(t) {}
     };
+
 
 }

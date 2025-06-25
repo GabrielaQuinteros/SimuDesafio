@@ -9,8 +9,11 @@
 #include <iostream>
 
 
+
+
 // Energía máxima para romper pared
 constexpr int MAX_ENERGY = 10;
+
 
 struct State {
     int row, col;
@@ -18,10 +21,14 @@ struct State {
     int cost;
 
 
+
+
     bool operator>(const State& other) const {
         return cost > other.cost;
     }
 };
+
+
 
 
 // CORREGIDO: Direcciones exactas según tu descripción
@@ -46,6 +53,7 @@ std::pair<int, int> getTransportDirection(model::CellType type, int row) {
     }
 }
 
+
 std::tuple<int, int, int> slideThroughBands(model::HexGrid& grid, int row, int col, int energy) {
     std::cout << "Simulando bandas desde (" << row << ", " << col << ") con energía " << energy << std::endl;
    
@@ -55,10 +63,12 @@ std::tuple<int, int, int> slideThroughBands(model::HexGrid& grid, int row, int c
        
         if (!(type >= model::CellType::UP_RIGHT && type <= model::CellType::DOWN_LEFT)) {
             std::cout << "  No es banda transportadora, parando en (" << row << ", " << col << ")" << std::endl;
-            break; 
+            break;
         }
 
+
         std::string bandName;
+
 
         bool isOdd = row % 2 != 0;
         auto offset = getTransportDirection(type, row);
@@ -66,7 +76,11 @@ std::tuple<int, int, int> slideThroughBands(model::HexGrid& grid, int row, int c
         int nc = col + offset.second;
 
 
+
+
         std::cout << "    Moviéndose a (" << nr << ", " << nc << ")" << std::endl;
+
+
 
 
         // Verificar límites
@@ -76,12 +90,16 @@ std::tuple<int, int, int> slideThroughBands(model::HexGrid& grid, int row, int c
         }
 
 
+
+
         // Verificar si la celda destino no es una pared
         const auto& targetCell = grid.at(nr, nc);
         if (targetCell.type == model::CellType::WALL) {
             std::cout << "    Destino es pared, parando" << std::endl;
             break;
         }
+
+
 
 
         // Simula movimiento automático: gana 1 de energía (igual que en GameLogic.cpp)
@@ -93,9 +111,13 @@ std::tuple<int, int, int> slideThroughBands(model::HexGrid& grid, int row, int c
     }
 
 
+
+
     std::cout << "Simulación terminada en (" << row << ", " << col << ") con energía " << energy << std::endl;
     return { row, col, energy };
 }
+
+
 
 
 // NUEVA FUNCIÓN: Obtener el camino completo paso a paso
@@ -183,6 +205,8 @@ std::vector<std::pair<int, int> > getStepByStepPath(
 }
 
 
+
+
 PathfindingResult findPath(
     model::HexGrid& grid,
     int startRow, int startCol,
@@ -198,6 +222,8 @@ PathfindingResult findPath(
     std::set<std::tuple<int, int, int> > visited;
 
 
+
+
     // Simular bandas desde la posición inicial
     auto startResult = slideThroughBands(grid, startRow, startCol, initialEnergy);
     int actualStartRow = std::get<0>(startResult);
@@ -205,11 +231,17 @@ PathfindingResult findPath(
     int actualStartEnergy = std::get<2>(startResult);
 
 
+
+
     std::cout << "Posición real de inicio después de bandas: (" << actualStartRow << ", " << actualStartCol << ")" << std::endl;
+
+
 
 
     openSet.push(State{actualStartRow, actualStartCol, actualStartEnergy, 0});
     visited.insert(std::make_tuple(actualStartRow, actualStartCol, actualStartEnergy));
+
+
 
 
     while (!openSet.empty()) {
@@ -217,7 +249,11 @@ PathfindingResult findPath(
         openSet.pop();
 
 
+
+
         std::cout << "\nExplorando estado: (" << current.row << ", " << current.col << ") energía " << current.energy << std::endl;
+
+
 
 
         // Verificar si llegamos a la meta
@@ -256,6 +292,8 @@ PathfindingResult findPath(
         }
 
 
+
+
         model::HexCell& cell = grid.at(current.row, current.col);
         for (model::HexCell* neighbor : grid.neighbors(cell)) {
             int nr = neighbor->row;
@@ -263,7 +301,11 @@ PathfindingResult findPath(
             int newEnergy = std::min(current.energy + 1, MAX_ENERGY);
 
 
+
+
             std::cout << "  Vecino: (" << nr << ", " << nc << ") tipo: " << static_cast<int>(neighbor->type) << std::endl;
+
+
 
 
             // Si es pared, verificar si se puede romper
@@ -277,6 +319,8 @@ PathfindingResult findPath(
             }
 
 
+
+
             // IMPORTANTE: Simular bandas desde la nueva posición
             auto result = slideThroughBands(grid, nr, nc, newEnergy);
             int finalR = std::get<0>(result);
@@ -286,6 +330,8 @@ PathfindingResult findPath(
             std::tuple<int, int, int> key = std::make_tuple(finalR, finalC, finalEnergy);
 
 
+
+
             if (visited.count(key)) {
                 std::cout << "    Estado ya visitado" << std::endl;
                 continue;
@@ -293,11 +339,15 @@ PathfindingResult findPath(
             visited.insert(key);
 
 
+
+
             std::cout << "    Agregando estado: (" << finalR << ", " << finalC << ") energía " << finalEnergy << std::endl;
             openSet.push(State{finalR, finalC, finalEnergy, current.cost + 1});
             cameFrom[key] = std::make_tuple(current.row, current.col, current.energy);
         }
     }
+
+
 
 
     std::cout << "NO SE ENCONTRÓ CAMINO" << std::endl;

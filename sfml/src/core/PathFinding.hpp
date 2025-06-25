@@ -6,10 +6,16 @@
 
 
 
+
+
+
+
 struct PathfindingResult {
     std::vector<model::HexCell*> path;
     bool success;
 };
+
+
 
 
 PathfindingResult findPath(
@@ -18,4 +24,3 @@ PathfindingResult findPath(
     int goalRow, int goalCol,
     int initialEnergy
 );
-

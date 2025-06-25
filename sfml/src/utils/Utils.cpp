@@ -2,7 +2,9 @@
 #include "model/HexCell.hpp"
 #include <iostream>
 
+
 using namespace model;
+
 
 // Crea texto básico con fuente, tamaño y color
 sf::Text createText(
@@ -16,6 +18,7 @@ sf::Text createText(
     text.setFillColor(color);
     return text;
 }
+
 
 // Devuelve el desplazamiento que produce una banda transportadora
 // Corregido para seguir correctamente las direcciones hexagonales
@@ -39,4 +42,5 @@ std::pair<int, int> getConveyorOffset(CellType type, bool isOddRow)
         return {0, 0}; // No movimiento automático
     }
 }
+
 

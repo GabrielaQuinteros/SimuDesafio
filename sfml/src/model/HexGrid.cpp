@@ -1,7 +1,9 @@
-#include "HexGrid.hpp" 
-#include <cassert>     
+#include "HexGrid.hpp"
+#include <cassert>    
 
-using namespace model; 
+
+using namespace model;
+
 
 // Constructor: inicializa un grid hexagonal con el número de filas y columnas especificado
 HexGrid::HexGrid(int rows, int cols)
@@ -20,7 +22,8 @@ HexGrid::HexGrid(int rows, int cols)
     }
 }
 
-// Método para acceder a una celda específica del grid 
+
+// Método para acceder a una celda específica del grid
 // Devuelve una referencia constante a la celda en la posición (row, col)
 const HexCell &HexGrid::at(int row, int col) const
 {
@@ -28,6 +31,7 @@ const HexCell &HexGrid::at(int row, int col) const
     assert(row >= 0 && row < m_rows && col >= 0 && col < m_cols);
     return m_cells[row][col]; // Devuelve la celda correspondiente
 }
+
 
 // Método para acceder a una celda específica del grid (versión no constante)
 // Devuelve una referencia modificable a la celda en la posición (row, col)
@@ -38,22 +42,27 @@ HexCell &HexGrid::at(int row, int col)
     return m_cells[row][col]; // Devuelve la celda correspondiente
 }
 
+
 // Método para obtener los vecinos de una celda específica
 std::vector<HexCell*> HexGrid::neighbors(const HexCell& cell)
 {
     // Dirección: E, SE, SW, W, NW, NE (en sentido horario desde la derecha)
     static const int dRow[6] = { 0, 1, 1, 0, -1, -1 };
 
+
     static const int dColEven[6] = { 1, 0, -1, -1, -1, 0 }; // filas pares
     static const int dColOdd[6] = { 1, 1, 0, -1, 0, 1 };   // filas impares
+
 
     std::vector<HexCell*> result;
     int r = cell.row, c = cell.col;
     bool odd = r % 2 != 0;
 
+
     for (int i = 0; i < 6; ++i) {
         int nr = r + dRow[i];
         int nc = c + (odd ? dColOdd[i] : dColEven[i]);
+
 
         if (nr >= 0 && nr < m_rows && nc >= 0 && nc < m_cols) {
             result.push_back(&m_cells[nr][nc]);
@@ -62,6 +71,7 @@ std::vector<HexCell*> HexGrid::neighbors(const HexCell& cell)
     return result;
 }
 
+
 // Método para convertir las coordenadas del grid a coordenadas de píxeles
 sf::Vector2f HexGrid::toPixel(int row, int col) const
 {
@@ -69,6 +79,7 @@ sf::Vector2f HexGrid::toPixel(int row, int col) const
     const float baseX = (row % 2 == 0) ? 50.f : 75.f;
     const float x = baseX + col * 50.f; // Calcula la posición X en píxeles
     const float y = 50.f + row * 40.f;  // Calcula la posición Y en píxeles
+
 
     return {x, y}; // Devuelve las coordenadas de píxeles como un vector 2D
 }

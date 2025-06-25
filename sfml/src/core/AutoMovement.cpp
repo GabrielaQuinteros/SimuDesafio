@@ -3,10 +3,13 @@
 #include "../core/GameLogic.hpp"
 #include <SFML/Window.hpp>
 
+
 using namespace model;
 using namespace sf;
 
+
 namespace core {
+
 
 static Keyboard::Key keyFromDelta(int dRow, int dCol, int curRow) {
     bool odd = (curRow % 2) != 0;
@@ -16,8 +19,9 @@ static Keyboard::Key keyFromDelta(int dRow, int dCol, int curRow) {
     if (dRow ==  0 && dCol ==  1)              return Keyboard::D;
     if (dRow ==  1 && dCol == (odd ? 1 : 0))   return Keyboard::X;
     if (dRow ==  1 && dCol == (odd ? 0 : -1))  return Keyboard::Z;
-    return Keyboard::A; 
+    return Keyboard::A;
 }
+
 
 void updateAutoMovement(
     HexGrid& grid,
@@ -32,11 +36,14 @@ void updateAutoMovement(
         return;
     }
 
+
     // Esperamos a que termine cualquier animación de movimiento
     if (player.isMoving) return;
 
+
     // Siguiente paso
     auto [nextR, nextC] = pathCells.front();
+
 
     // Si es muro…
     if (grid.at(nextR, nextC).type == CellType::WALL) {
@@ -59,14 +66,18 @@ void updateAutoMovement(
         return;
     }
 
+
     int dR = nextR - player.row;
     int dC = nextC - player.col;
     Keyboard::Key dir = keyFromDelta(dR, dC, player.row);
 
+
     handlePlayerMovement(dir, player, grid);
+
 
     // Eliminamos ese paso del vector
     pathCells.erase(pathCells.begin());
 }
+
 
 }
