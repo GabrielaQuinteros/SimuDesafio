@@ -4,12 +4,6 @@
 #include <vector>
 
 
-
-
-
-
-
-
 struct PathfindingResult {
     std::vector<model::HexCell*> path;
     bool success;

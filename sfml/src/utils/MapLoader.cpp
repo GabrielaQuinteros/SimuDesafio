@@ -2,11 +2,10 @@
 #include "model/HexCell.hpp"
 #include <fstream>
 #include <iostream>
-
+#include <algorithm>
 
 using namespace model;
 using namespace std;
-
 
 HexGrid loadHexGridFromFile(const string &filepath)
 {
@@ -17,10 +16,8 @@ HexGrid loadHexGridFromFile(const string &filepath)
         return HexGrid(0, 0);
     }
 
-
     vector<string> lines;
     string line;
-
 
     while (getline(file, line))
     {
@@ -28,19 +25,33 @@ HexGrid loadHexGridFromFile(const string &filepath)
             lines.push_back(line);
     }
 
+    if (lines.empty()) {
+        cerr << "El archivo está vacío: " << filepath << "\n";
+        return HexGrid(0, 0);
+    }
 
     int rows = lines.size();
-    int cols = lines.empty() ? 0 : lines[0].size();
-    HexGrid grid(rows, cols);
-
+    
+    // Encontrar la longitud máxima de todas las filas
+    int maxCols = 0;
+    for (const auto& row : lines) {
+        maxCols = max(maxCols, static_cast<int>(row.size()));
+    }
+    
+    HexGrid grid(rows, maxCols);
 
     for (int r = 0; r < rows; ++r)
     {
-        for (int c = 0; c < cols; ++c)
+        for (int c = 0; c < maxCols; ++c)
         {
-            char ch = lines[r][c];
+            char ch = '.'; // Valor por defecto si la fila es más corta
+            
+            // Solo acceder al carácter si existe en esta fila
+            if (c < static_cast<int>(lines[r].size())) {
+                ch = lines[r][c];
+            }
+            
             CellType type;
-
 
             switch (ch)
             {
@@ -79,15 +90,12 @@ HexGrid loadHexGridFromFile(const string &filepath)
                 break;
             }
 
-
             grid.at(r, c).type = type;
         }
     }
 
-
     return grid;
 }
-
 
 string CellTypeToString(CellType type)
 {
@@ -120,7 +128,3 @@ string CellTypeToString(CellType type)
         return "?";
     }
 }
-
-
-
-

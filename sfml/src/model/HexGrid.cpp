@@ -70,8 +70,6 @@ std::vector<HexCell*> HexGrid::neighbors(const HexCell& cell)
     }
     return result;
 }
-
-
 // Método para convertir las coordenadas del grid a coordenadas de píxeles
 sf::Vector2f HexGrid::toPixel(int row, int col) const
 {

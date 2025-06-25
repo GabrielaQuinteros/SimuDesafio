@@ -34,6 +34,4 @@ namespace model
         HexCell(int r, int c, CellType t) //Fila, columna y tipo de celda
             : row(r), col(c), type(t) {}
     };
-
-
 }
