@@ -510,7 +510,10 @@ void drawModernControls(RenderWindow& window, Font& font, Clock& animClock) {
     // Posición dinámica
     float panelX = windowWidth - 180;
     float panelY = 280;
-   
+
+
+
+
     // Panel principal (ajustado para pantallas grandes)
     RectangleShape controlPanel(Vector2f(160, 180));
     controlPanel.setPosition(panelX, panelY);
@@ -892,4 +895,191 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
             window.draw(centerDot);
         }
     }
+}
+
+// VERSIÓN SIMPLIFICADA - Agregar al final de Renderer.cpp
+
+void drawIntroScreen(sf::RenderWindow& window, sf::Font& font, sf::Clock& animClock) {
+    float time = animClock.getElapsedTime().asSeconds();
+    float windowWidth = static_cast<float>(window.getSize().x);
+    float windowHeight = static_cast<float>(window.getSize().y);
+    
+    // Colores del tema
+    const sf::Color NEON_BLUE = sf::Color(0, 200, 255);
+    const sf::Color NEON_GREEN = sf::Color(0, 255, 150);
+    const sf::Color NEON_PURPLE = sf::Color(180, 100, 255);
+    const sf::Color NEON_ORANGE = sf::Color(255, 150, 0);
+    const sf::Color ELECTRIC_YELLOW = sf::Color(255, 255, 0);
+    const sf::Color CYBER_WHITE = sf::Color(240, 240, 255);
+    const sf::Color PATH_RED = sf::Color(255, 50, 50);
+    
+    // Fondo simple
+    sf::RectangleShape background(sf::Vector2f(windowWidth, windowHeight));
+    background.setFillColor(sf::Color(15, 25, 60));
+    window.draw(background);
+    
+    float centerX = windowWidth / 2.0f;
+    float titleY = 80.0f;
+    
+    // Título principal
+    sf::Text mainTitle;
+    mainTitle.setFont(font);
+    mainTitle.setCharacterSize(42);
+    mainTitle.setStyle(sf::Text::Bold);
+    mainTitle.setString("HexEscape");
+    
+    sf::FloatRect titleBounds = mainTitle.getLocalBounds();
+    mainTitle.setOrigin(titleBounds.width / 2, titleBounds.height / 2);
+    mainTitle.setPosition(centerX, titleY);
+    
+    float titlePulse = sin(time * 4.0f) * 0.3f + 0.7f;
+    mainTitle.setFillColor(sf::Color(
+        static_cast<sf::Uint8>(ELECTRIC_YELLOW.r * titlePulse),
+        static_cast<sf::Uint8>(ELECTRIC_YELLOW.g * titlePulse),
+        static_cast<sf::Uint8>(ELECTRIC_YELLOW.b)
+    ));
+    window.draw(mainTitle);
+    
+    // Subtítulo
+    sf::Text subtitle;
+    subtitle.setFont(font);
+    subtitle.setCharacterSize(18);
+    subtitle.setStyle(sf::Text::Bold);
+    subtitle.setString("FABRICA DE ROMPECABEZAS ELITE");
+    
+    sf::FloatRect subtitleBounds = subtitle.getLocalBounds();
+    subtitle.setOrigin(subtitleBounds.width / 2, subtitleBounds.height / 2);
+    subtitle.setPosition(centerX, titleY + 50);
+    subtitle.setFillColor(NEON_BLUE);
+    window.draw(subtitle);
+    
+    // CONTEXTO DEL JUEGO
+    float contextY = titleY + 120;
+    
+    sf::Text contextText;
+    contextText.setFont(font);
+    contextText.setCharacterSize(14);
+    contextText.setFillColor(CYBER_WHITE);
+    contextText.setString("Eres un ingeniero atrapado en una fabrica automatizada futurista.");
+    
+    sf::FloatRect contextBounds = contextText.getLocalBounds();
+    contextText.setOrigin(contextBounds.width / 2, contextBounds.height / 2);
+    contextText.setPosition(centerX, contextY);
+    window.draw(contextText);
+    
+    sf::Text contextText2;
+    contextText2.setFont(font);
+    contextText2.setCharacterSize(14);
+    contextText2.setFillColor(CYBER_WHITE);
+    contextText2.setString("Navega a traves de bandas transportadoras, evita paredes dinamicas");
+    
+    sf::FloatRect context2Bounds = contextText2.getLocalBounds();
+    contextText2.setOrigin(context2Bounds.width / 2, context2Bounds.height / 2);
+    contextText2.setPosition(centerX, contextY + 20);
+    window.draw(contextText2);
+    
+    sf::Text contextText3;
+    contextText3.setFont(font);
+    contextText3.setCharacterSize(14);
+    contextText3.setFillColor(CYBER_WHITE);
+    contextText3.setString("y usa tu energia acumulada para destruir obstaculos. ¡Escapa!");
+    
+    sf::FloatRect context3Bounds = contextText3.getLocalBounds();
+    contextText3.setOrigin(context3Bounds.width / 2, context3Bounds.height / 2);
+    contextText3.setPosition(centerX, contextY + 40);
+    window.draw(contextText3);
+    
+    // CONTROLES
+    float controlsY = contextY + 80;
+    
+    sf::Text controlsTitle;
+    controlsTitle.setFont(font);
+    controlsTitle.setCharacterSize(18);
+    controlsTitle.setStyle(sf::Text::Bold);
+    controlsTitle.setString("CONTROLES");
+    
+    sf::FloatRect controlsBounds = controlsTitle.getLocalBounds();
+    controlsTitle.setOrigin(controlsBounds.width / 2, controlsBounds.height / 2);
+    controlsTitle.setPosition(centerX, controlsY);
+    controlsTitle.setFillColor(ELECTRIC_YELLOW);
+    window.draw(controlsTitle);
+    
+    std::vector<std::string> controls = {
+        "W/E - Arriba Diagonal   |   A/D - Izquierda/Derecha   |   Z/X - Abajo Diagonal",
+        "",
+        "SPACE - Romper Pared (Requiere Energia Llena)",
+        "",
+        "P - Mostrar Camino Optimo   |   R - Auto-Resolver   |   T - Ejecutar Camino",
+        "",
+        "ESC - Cancelar / Salir"
+    };
+    
+    for (size_t i = 0; i < controls.size(); ++i) {
+        sf::Text controlText;
+        controlText.setFont(font);
+        controlText.setCharacterSize(12);
+        controlText.setFillColor(i == 2 ? NEON_ORANGE : (i == 4 ? PATH_RED : CYBER_WHITE));
+        if (i == 2 || i == 4) controlText.setStyle(sf::Text::Bold);
+        controlText.setString(controls[i]);
+        
+        sf::FloatRect bounds = controlText.getLocalBounds();
+        controlText.setOrigin(bounds.width / 2, bounds.height / 2);
+        controlText.setPosition(centerX, controlsY + 30 + i * 18);
+        window.draw(controlText);
+    }
+    
+    // CARACTERÍSTICAS ESPECIALES
+    float featuresY = controlsY + 180;
+    
+    sf::Text featuresTitle;
+    featuresTitle.setFont(font);
+    featuresTitle.setCharacterSize(16);
+    featuresTitle.setStyle(sf::Text::Bold);
+    featuresTitle.setString("CARACTERISTICAS ESPECIALES");
+    
+    sf::FloatRect featuresBounds = featuresTitle.getLocalBounds();
+    featuresTitle.setOrigin(featuresBounds.width / 2, featuresBounds.height / 2);
+    featuresTitle.setPosition(centerX, featuresY);
+    featuresTitle.setFillColor(NEON_GREEN);
+    window.draw(featuresTitle);
+    
+    std::vector<std::string> features = {
+        "• Bandas Transportadoras Automaticas   • Sistema de Energia Dinamico",
+        "• Paredes Generadas Cada 5 Turnos   • Pathfinding Inteligente con A*",
+        "• Grid Hexagonal Futurista"
+    };
+    
+    for (size_t i = 0; i < features.size(); ++i) {
+        sf::Text featureText;
+        featureText.setFont(font);
+        featureText.setCharacterSize(12);
+        featureText.setFillColor(CYBER_WHITE);
+        featureText.setString(features[i]);
+        
+        sf::FloatRect bounds = featureText.getLocalBounds();
+        featureText.setOrigin(bounds.width / 2, bounds.height / 2);
+        featureText.setPosition(centerX, featuresY + 25 + i * 16);
+        window.draw(featureText);
+    }
+    
+    // INSTRUCCIÓN PARA COMENZAR
+    float startY = featuresY + 100;
+    
+    sf::Text startText;
+    startText.setFont(font);
+    startText.setCharacterSize(24);
+    startText.setStyle(sf::Text::Bold);
+    startText.setString("PRESIONA  ESPACIO  PARA  COMENZAR");
+    
+    sf::FloatRect startBounds = startText.getLocalBounds();
+    startText.setOrigin(startBounds.width / 2, startBounds.height / 2);
+    startText.setPosition(centerX, startY);
+    
+    float startPulse = sin(time * 6.0f) * 0.4f + 0.6f;
+    startText.setFillColor(sf::Color(
+        static_cast<sf::Uint8>(ELECTRIC_YELLOW.r * startPulse),
+        static_cast<sf::Uint8>(ELECTRIC_YELLOW.g * startPulse), 
+        static_cast<sf::Uint8>(ELECTRIC_YELLOW.b * startPulse)
+    ));
+    window.draw(startText);
 }
