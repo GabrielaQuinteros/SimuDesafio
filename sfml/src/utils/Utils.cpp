@@ -5,8 +5,6 @@
 
 using namespace model;
 
-
-// Crea texto básico con fuente, tamaño y color
 sf::Text createText(
     sf::Font &font,
     int fontSize,
@@ -19,9 +17,6 @@ sf::Text createText(
     return text;
 }
 
-
-// Devuelve el desplazamiento que produce una banda transportadora
-// Corregido para seguir correctamente las direcciones hexagonales
 std::pair<int, int> getConveyorOffset(CellType type, bool isOddRow)
 {
     switch (type)

@@ -19,8 +19,6 @@ private:
     static const int TURNS_PER_WALL = 5;
     static bool randomInitialized;
 
-
-    // Métodos privados para la lógica interna
     static vector<pair<int, int>> findAvailableCells(const HexGrid &grid, const Player &player);
     static void generateRandomWall(HexGrid &grid, const Player &player);
     static void initializeRandom();
@@ -28,18 +26,14 @@ private:
 
 public:
     static constexpr int ENERGY_PER_WALL_BREAK = 5;
-    // Método principal para manejar el sistema de turnos
     static void handleTurn(HexGrid &grid, const Player &player);
 
 
-    // Métodos de utilidad
     static int getCurrentTurnCount();
     static void resetTurnCounter();
     static void setTurnsPerWall(int turns);
     static int getTurnsPerWall();
 
-
-    // Método para verificar si es momento de generar un muro
     static bool shouldGenerateWall();
 };
 

@@ -8,7 +8,6 @@
 using namespace model;
 using namespace sf;
 
-// Paleta de colores vibrante y profesional
 const Color NEON_BLUE = Color(0, 200, 255);
 const Color NEON_GREEN = Color(0, 255, 150);
 const Color NEON_PURPLE = Color(180, 100, 255);
@@ -18,7 +17,6 @@ const Color CYBER_WHITE = Color(240, 240, 255);
 const Color TECH_GRAY = Color(70, 90, 120);
 const Color DARK_BLUE = Color(20, 40, 80);
 
-// NUEVOS COLORES PARA EL CAMINO DE PATHFINDING
 const Color PATH_RED = Color(255, 50, 50);
 const Color PATH_GLOW = Color(255, 100, 100, 180);
 const Color PATH_BRIGHT = Color(255, 255, 255);
@@ -42,7 +40,6 @@ Color lerpColor(const Color& a, const Color& b, float t) {
     );
 }
 
-// Función para crear hexágonos decorativos
 void drawDecorativeHex(RenderWindow& window, Vector2f position, float size, Color color, float time, bool rotating = true) {
     CircleShape hex(size, 6);
     hex.setOrigin(size, size);
@@ -58,11 +55,9 @@ void drawDecorativeHex(RenderWindow& window, Vector2f position, float size, Colo
     window.draw(hex);
 }
 
-// Pantalla de victoria con temática hexagonal profesional
 void drawVictoryScreen(RenderWindow& window, Font& font, float winTime, int turnCount, Clock& animClock) {
     float time = animClock.getElapsedTime().asSeconds();
    
-    // Fondo con gradiente vibrante
     for (int i = 0; i < window.getSize().y; i += 4) {
         float gradient = static_cast<float>(i) / window.getSize().y;
         Color currentColor = lerpColor(DARK_BLUE, Color(40, 20, 80), gradient);
@@ -73,7 +68,6 @@ void drawVictoryScreen(RenderWindow& window, Font& font, float winTime, int turn
         window.draw(line);
     }
 
-    // Hexágonos decorativos flotantes
     for (int i = 0; i < 20; ++i) {
         float x = 100 + (i % 4) * 200 + sin(time + i) * 50;
         float y = 100 + (i / 4) * 100 + cos(time * 1.5f + i) * 30;
@@ -88,7 +82,6 @@ void drawVictoryScreen(RenderWindow& window, Font& font, float winTime, int turn
     float centerX = window.getSize().x / 2.0f;
     float centerY = window.getSize().y / 2.0f;
    
-    // Marco hexagonal principal
     for (int i = 0; i < 3; ++i) {
         CircleShape mainHex(120 + i * 25, 6);
         mainHex.setOrigin(120 + i * 25, 120 + i * 25);
@@ -107,7 +100,6 @@ void drawVictoryScreen(RenderWindow& window, Font& font, float winTime, int turn
         window.draw(mainHex);
     }
 
-    // Panel central con efecto de cristal
     RectangleShape centerPanel(Vector2f(400, 250));
     centerPanel.setOrigin(200, 125);
     centerPanel.setPosition(centerX, centerY);
@@ -116,7 +108,6 @@ void drawVictoryScreen(RenderWindow& window, Font& font, float winTime, int turn
     centerPanel.setOutlineThickness(2);
     window.draw(centerPanel);
 
-    // Título VICTORY con efecto neon
     Text victoryTitle;
     victoryTitle.setFont(font);
     victoryTitle.setCharacterSize(48);
@@ -135,7 +126,6 @@ void drawVictoryScreen(RenderWindow& window, Font& font, float winTime, int turn
     ));
     window.draw(victoryTitle);
 
-    // Estadísticas con diseño futurista
     Text timeText;
     timeText.setFont(font);
     timeText.setCharacterSize(14);
@@ -158,7 +148,6 @@ void drawVictoryScreen(RenderWindow& window, Font& font, float winTime, int turn
     turnsText.setFillColor(NEON_BLUE);
     window.draw(turnsText);
 
-    // Instrucciones para salir
     Text exitText;
     exitText.setFont(font);
     exitText.setCharacterSize(11);
@@ -173,11 +162,9 @@ void drawVictoryScreen(RenderWindow& window, Font& font, float winTime, int turn
     window.draw(exitText);
 }
 
-// Título del juego con elementos hexagonales
 void drawGameTitle(RenderWindow& window, Font& font, Clock& animClock) {
     float time = animClock.getElapsedTime().asSeconds();
 
-    // Hexágonos decorativos alrededor del título
     float centerX = window.getSize().x / 2.0f;
     for (int i = 0; i < 8; ++i) {
         float angle = (i / 8.0f) * 2 * 3.14159f;
@@ -203,7 +190,6 @@ void drawGameTitle(RenderWindow& window, Font& font, Clock& animClock) {
     titleText.setFillColor(ELECTRIC_YELLOW);
     window.draw(titleText);
 
-    // Subtítulo centrado entre las líneas
     Text subtitleText;
     subtitleText.setFont(font);
     subtitleText.setCharacterSize(12);
@@ -213,29 +199,24 @@ void drawGameTitle(RenderWindow& window, Font& font, Clock& animClock) {
     float subtitleX = (window.getSize().x - subtitleBounds.width) / 2.0f;
     float subtitleY = titleY + 40.0f;
 
-    // Línea izquierda
     RectangleShape leftLine(Vector2f(80, 2));
     leftLine.setPosition(subtitleX - 90, subtitleY + 8);
     leftLine.setFillColor(NEON_BLUE);
     window.draw(leftLine);
 
-    // Subtítulo centrado
     subtitleText.setPosition(subtitleX, subtitleY);
     subtitleText.setFillColor(CYBER_WHITE);
     window.draw(subtitleText);
 
-    // Línea derecha
     RectangleShape rightLine(Vector2f(80, 2));
     rightLine.setPosition(subtitleX + subtitleBounds.width + 10, subtitleY + 8);
     rightLine.setFillColor(NEON_BLUE);
     window.draw(rightLine);
 }
 
-// Fondo vibrante con elementos hexagonales
 void drawAnimatedBackground(RenderWindow& window, Clock& bgClock) {
     float time = bgClock.getElapsedTime().asSeconds();
 
-    // Gradiente vibrante de fondo
     for (int i = 0; i < window.getSize().y; i += 3) {
         float gradient = static_cast<float>(i) / window.getSize().y;
         float wave = sin(time * 2.0f + gradient * 8.0f) * 0.2f + 0.8f;
@@ -257,7 +238,6 @@ void drawAnimatedBackground(RenderWindow& window, Clock& bgClock) {
         window.draw(line);
     }
 
-    // Hexágonos flotantes como partículas
     for (int i = 0; i < 25; ++i) {
         float x = fmod(time * 40.0f + i * 50.0f, window.getSize().x + 100.0f) - 50.0f;
         float y = 100.0f + sin(time * 1.2f + i * 0.5f) * 40.0f + i * 20.0f;
@@ -275,7 +255,6 @@ void drawAnimatedBackground(RenderWindow& window, Clock& bgClock) {
     }
 }
 
-// Barra de energía responsiva
 void drawModernEnergyBar(RenderWindow& window, const Player& player, Font& font, Clock& animClock) {
     const float barWidth = 280.0f;
     const float barHeight = 22.0f;
@@ -284,7 +263,6 @@ void drawModernEnergyBar(RenderWindow& window, const Player& player, Font& font,
 
     float time = animClock.getElapsedTime().asSeconds();
 
-    // Marco de la barra con efecto tech
     RectangleShape energyFrame(Vector2f(barWidth, barHeight));
     energyFrame.setPosition(barX, barY);
     energyFrame.setFillColor(Color(20, 40, 80, 180));
@@ -292,7 +270,6 @@ void drawModernEnergyBar(RenderWindow& window, const Player& player, Font& font,
     energyFrame.setOutlineThickness(2);
     window.draw(energyFrame);
 
-    // Relleno de energía con efectos
     float fillWidth = barWidth * player.getEnergyPercentage();
     if (fillWidth > 0) {
         RectangleShape energyFill(Vector2f(fillWidth, barHeight));
@@ -321,7 +298,6 @@ void drawModernEnergyBar(RenderWindow& window, const Player& player, Font& font,
         window.draw(energyFill);
     }
 
-    // Texto de energía con estilo futurista
     Text energyText;
     energyText.setFont(font);
     energyText.setCharacterSize(14);
@@ -331,7 +307,6 @@ void drawModernEnergyBar(RenderWindow& window, const Player& player, Font& font,
     energyText.setPosition(barX, barY - 22);
     window.draw(energyText);
 
-    // Indicador de habilidad
     if (player.canUseWallBreak()) {
         float pulse = sin(time * 8.0f) * 0.5f + 0.5f;
 
@@ -368,17 +343,14 @@ void drawModernEnergyBar(RenderWindow& window, const Player& player, Font& font,
     }
 }
 
-// Panel de información con temática hexagonal - RESPONSIVO PARA PANTALLAS GRANDES
 void drawGameInfo(RenderWindow& window, Font& font, int turnCount, Clock& animClock,
                  bool showPathVisualization, bool autoSolveMode) {
     float time = animClock.getElapsedTime().asSeconds();
     float windowWidth = static_cast<float>(window.getSize().x);
     
-    // Posición dinámica basada en el ancho de ventana
     float panelX = windowWidth - 180;
     float panelY = 80;
     
-    // Panel principal con diseño futurista
     RectangleShape panel(Vector2f(160, 180));
     panel.setPosition(panelX, panelY);
     panel.setFillColor(Color(20, 40, 80, 200));
@@ -386,7 +358,6 @@ void drawGameInfo(RenderWindow& window, Font& font, int turnCount, Clock& animCl
     panel.setOutlineThickness(2);
     window.draw(panel);
 
-    // Hexágonos decorativos en las esquinas
     Vector2f corners[] = {
         Vector2f(panelX + 5, panelY + 5),
         Vector2f(panelX + 155, panelY + 5),
@@ -400,7 +371,6 @@ void drawGameInfo(RenderWindow& window, Font& font, int turnCount, Clock& animCl
         drawDecorativeHex(window, corners[i], 6, hexColor, time * 60.0f);
     }
 
-    // Título del panel
     Text titleText;
     titleText.setFont(font);
     titleText.setCharacterSize(12);
@@ -410,7 +380,6 @@ void drawGameInfo(RenderWindow& window, Font& font, int turnCount, Clock& animCl
     titleText.setPosition(panelX + 15, panelY + 10);
     window.draw(titleText);
 
-    // Información de turnos
     Text turnText;
     turnText.setFont(font);
     turnText.setCharacterSize(11);
@@ -419,7 +388,6 @@ void drawGameInfo(RenderWindow& window, Font& font, int turnCount, Clock& animCl
     turnText.setPosition(panelX + 15, panelY + 30);
     window.draw(turnText);
 
-    // Próximo evento
     int turnsUntilWall = 5 - (turnCount % 5);
     Text eventText;
     eventText.setFont(font);
@@ -429,7 +397,6 @@ void drawGameInfo(RenderWindow& window, Font& font, int turnCount, Clock& animCl
     eventText.setPosition(panelX + 15, panelY + 45);
     window.draw(eventText);
 
-    // Cronómetro
     Text timeText;
     timeText.setFont(font);
     timeText.setCharacterSize(10);
@@ -438,7 +405,6 @@ void drawGameInfo(RenderWindow& window, Font& font, int turnCount, Clock& animCl
     timeText.setPosition(panelX + 15, panelY + 60);
     window.draw(timeText);
 
-    // INFORMACIÓN DEL MODO ACTUAL - CORREGIDA
     Text modeText;
     modeText.setFont(font);
     modeText.setCharacterSize(11);
@@ -464,7 +430,6 @@ void drawGameInfo(RenderWindow& window, Font& font, int turnCount, Clock& animCl
     }
     window.draw(modeText);
 
-    // Instrucciones contextuales
     Text instructionText;
     instructionText.setFont(font);
     instructionText.setCharacterSize(9);
@@ -485,7 +450,6 @@ void drawGameInfo(RenderWindow& window, Font& font, int turnCount, Clock& animCl
     }
     window.draw(instructionText);
 
-    // Opciones disponibles
     Text optionsText;
     optionsText.setFont(font);
     optionsText.setCharacterSize(8);
@@ -502,19 +466,13 @@ void drawGameInfo(RenderWindow& window, Font& font, int turnCount, Clock& animCl
     window.draw(optionsText);
 }
 
-// Panel de controles con diseño hexagonal - RESPONSIVO
 void drawModernControls(RenderWindow& window, Font& font, Clock& animClock) {
     float time = animClock.getElapsedTime().asSeconds();
     float windowWidth = static_cast<float>(window.getSize().x);
     
-    // Posición dinámica
     float panelX = windowWidth - 180;
     float panelY = 280;
 
-
-
-
-    // Panel principal (ajustado para pantallas grandes)
     RectangleShape controlPanel(Vector2f(160, 180));
     controlPanel.setPosition(panelX, panelY);
     controlPanel.setFillColor(Color(20, 40, 80, 200));
@@ -522,7 +480,6 @@ void drawModernControls(RenderWindow& window, Font& font, Clock& animClock) {
     controlPanel.setOutlineThickness(2);
     window.draw(controlPanel);
 
-    // Hexágonos decorativos en el panel de controles
     for (int i = 0; i < 4; ++i) {
         float hexX = panelX + 15 + (i % 2) * 30;
         float hexY = panelY + 15 + (i / 2) * 60;
@@ -532,7 +489,6 @@ void drawModernControls(RenderWindow& window, Font& font, Clock& animClock) {
         drawDecorativeHex(window, Vector2f(hexX, hexY), 5, hexColor, time * 45.0f + i * 60);
     }
 
-    // Título
     Text titleText;
     titleText.setFont(font);
     titleText.setCharacterSize(12);
@@ -542,7 +498,6 @@ void drawModernControls(RenderWindow& window, Font& font, Clock& animClock) {
     titleText.setPosition(panelX + 15, panelY + 10);
     window.draw(titleText);
 
-    // Controles actualizados
     std::vector<std::string> controls;
     controls.push_back("W/E: UP");
     controls.push_back("A/D: SIDE");
@@ -576,14 +531,12 @@ void drawModernControls(RenderWindow& window, Font& font, Clock& animClock) {
         window.draw(controlText);
     }
 
-    // Línea de separación
     RectangleShape separator(Vector2f(140, 1));
     separator.setPosition(panelX + 10, panelY + 165);
     separator.setFillColor(Color(NEON_PURPLE.r, NEON_PURPLE.g, NEON_PURPLE.b, 150));
     window.draw(separator);
 }
 
-// Colores de celdas vibrantes y profesionales
 Color getCellColor(CellType type, Clock& animClock) {
     float time = animClock.getElapsedTime().asSeconds();
 
@@ -622,7 +575,6 @@ Color getCellColor(CellType type, Clock& animClock) {
             static_cast<Uint8>(NEON_PURPLE.b * sparkle)
         );
     }
-    // Bandas transportadoras con colores vibrantes
     case CellType::UP_RIGHT: {
         float flow = sin(time * 5.0f) * 0.3f + 0.7f;
         return Color(255, static_cast<Uint8>(150 * flow), 0);
@@ -652,44 +604,33 @@ Color getCellColor(CellType type, Clock& animClock) {
     }
 }
 
-// Grid principal con efectos profesionales y hexagonales - CORREGIDO PARA GRILLA HEXAGONAL REAL
 void drawGrid(RenderWindow& window, const HexGrid& grid,
     Player& player, CircleShape& hexagon,
     Text& text, Font& font, Clock& animClock, Clock& bgClock,
     std::vector<std::pair<int, int>>& pathCells)
 {
-    // Dibujar fondo vibrante
     drawAnimatedBackground(window, bgClock);
 
-    // Dibujar título con elementos hexagonales
     drawGameTitle(window, font, animClock);
 
-    // Actualizar animación del jugador
     player.updateMovement();
 
-    // CÁLCULO CORREGIDO PARA GRILLA HEXAGONAL REAL
     float windowWidth = static_cast<float>(window.getSize().x);
     float windowHeight = static_cast<float>(window.getSize().y);
     
-    // Área disponible para el grid (descontando UI)
     float availableWidth = windowWidth - 400;
     float availableHeight = windowHeight - 200;
     
-    // Para grilla hexagonal: ancho = cols * 1.5 * hexSize, altura = rows * sqrt(3) * hexSize
     float hexSizeByWidth = availableWidth / (grid.cols() * 1.5f + 0.5f);
     float hexSizeByHeight = availableHeight / (grid.rows() * sqrt(3.0f));
     
-    // Tomar el menor para que quepa todo
     float hexSize = std::min(hexSizeByWidth, hexSizeByHeight);
     
-    // Limitar el tamaño para visibilidad
     hexSize = std::max(8.0f, std::min(hexSize, 25.0f));
     
-    // ESPACIADO CORRECTO PARA HEXÁGONOS
-    float hexSpacingX = hexSize * 1.5f;              // Distancia horizontal entre centros
-    float hexSpacingY = hexSize * sqrt(3.0f);        // Distancia vertical entre centros
+    float hexSpacingX = hexSize * 1.5f;             
+    float hexSpacingY = hexSize * sqrt(3.0f);       
     
-    // Centrar grid dinámicamente
     float gridWidth = (grid.cols() - 1) * hexSpacingX + hexSize * 2;
     float gridHeight = (grid.rows() - 1) * hexSpacingY + hexSize * 2;
     float offsetX = (availableWidth - gridWidth) / 2.0f + 50.0f;
@@ -697,25 +638,20 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
 
     float time = animClock.getElapsedTime().asSeconds();
 
-    // Crear hexágono dinámico
     CircleShape dynamicHex(hexSize, 6);
     dynamicHex.setOrigin(hexSize, hexSize);
     
-    // Tamaño de texto dinámico
     int textSize = static_cast<int>(hexSize * 0.4f);
     textSize = std::max(6, std::min(textSize, 12));
 
-    // PASO 1: Dibujar todas las celdas normales
     for (int y = 0; y < grid.rows(); ++y) {
         for (int x = 0; x < grid.cols(); ++x) {
             const HexCell& cell = grid.at(y, x);
             
-            // POSICIONAMIENTO HEXAGONAL CORRECTO
             float posX = offsetX + x * hexSpacingX + (y % 2 == 1 ? hexSpacingX * 0.5f : 0);
             float posY = offsetY + y * hexSpacingY;
             Vector2f pos(posX, posY);
 
-            // Verificar si esta celda está en el path
             bool isInPath = false;
             for (const auto& pathCell : pathCells) {
                 if (pathCell.first == y && pathCell.second == x) {
@@ -724,7 +660,6 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
                 }
             }
 
-            // Sombra (solo para hexágonos grandes)
             if (!isInPath && hexSize > 10) {
                 CircleShape shadow = dynamicHex;
                 shadow.setPosition(pos.x + 1, pos.y + 1);
@@ -733,7 +668,6 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
                 window.draw(shadow);
             }
 
-            // Hexágono principal
             dynamicHex.setPosition(pos);
             dynamicHex.setFillColor(getCellColor(cell.type, animClock));
             dynamicHex.setOutlineColor(Color(120, 140, 160));
@@ -741,7 +675,6 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
 
             window.draw(dynamicHex);
 
-            // Texto (solo si el hexágono es lo suficientemente grande)
             if (!isInPath && hexSize > 10) {
                 text.setString(CellTypeToString(cell.type));
                 text.setCharacterSize(textSize);
@@ -753,9 +686,7 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
         }
     }
 
-    // PASO 2: DIBUJAR PATHFINDING CUANDO EXISTE
     if (!pathCells.empty()) {
-        // Dibujar hexágonos del camino
         for (size_t i = 0; i < pathCells.size(); ++i) {
             const std::pair<int, int>& pathCell = pathCells[i];
             
@@ -763,11 +694,9 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
             float posY = offsetY + pathCell.first * hexSpacingY;
             Vector2f pos(posX, posY);
            
-            // Tamaños dinámicos para el path
             float pathOuterSize = hexSize + 2;
             float pathInnerSize = hexSize - 1;
            
-            // Hexágono exterior rojo
             CircleShape pathHexOuter(pathOuterSize, 6);
             pathHexOuter.setOrigin(pathOuterSize, pathOuterSize);
             pathHexOuter.setPosition(pos);
@@ -776,7 +705,6 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
             pathHexOuter.setOutlineThickness(std::max(1.0f, hexSize * 0.1f));
             window.draw(pathHexOuter);
            
-            // Hexágono interior
             CircleShape pathHexInner(pathInnerSize, 6);
             pathHexInner.setOrigin(pathInnerSize, pathInnerSize);
             pathHexInner.setPosition(pos);
@@ -786,7 +714,6 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
             window.draw(pathHexInner);
         }
        
-        // Dibujar números de secuencia (solo si los hexágonos son grandes)
         if (hexSize > 12) {
             for (size_t i = 0; i < pathCells.size(); ++i) {
                 const std::pair<int, int>& pathCell = pathCells[i];
@@ -795,7 +722,6 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
                 float posY = offsetY + pathCell.first * hexSpacingY;
                 Vector2f pos(posX, posY);
                
-                // Círculo de fondo para el número
                 float numberBgSize = hexSize * 0.4f;
                 CircleShape numberBg(numberBgSize);
                 numberBg.setOrigin(numberBgSize, numberBgSize);
@@ -805,7 +731,6 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
                 numberBg.setOutlineThickness(1);
                 window.draw(numberBg);
                
-                // Número de secuencia
                 Text seqNumber;
                 seqNumber.setFont(font);
                 seqNumber.setCharacterSize(static_cast<int>(hexSize * 0.5f));
@@ -821,14 +746,11 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
         }
     }
 
-    // PASO 3: Dibujar jugador (siempre por encima)
     float playerPosX = offsetX + player.col * hexSpacingX + (player.row % 2 == 1 ? hexSpacingX * 0.5f : 0);
     float playerPosY = offsetY + player.row * hexSpacingY;
     
-    // Si está animándose, usar la posición interpolada
     if (player.isMoving) {
         Vector2f visualPos = player.getVisualPosition(grid);
-        // Convertir de coordenadas del grid original a coordenadas de pantalla
         float deltaX = (visualPos.x - grid.toPixel(player.row, player.col).x) / 50.0f;
         float deltaY = (visualPos.y - grid.toPixel(player.row, player.col).y) / 40.0f;
         playerPosX += deltaX * hexSpacingX;
@@ -837,11 +759,9 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
     
     Vector2f playerPos(playerPosX, playerPosY);
 
-    // Tamaño del jugador dinámico
     float playerSize = hexSize * 0.6f;
     CircleShape playerCircle(playerSize);
 
-    // Sombra del jugador
     if (hexSize > 8) {
         CircleShape playerShadow(playerSize + 1);
         playerShadow.setPosition(playerPos.x + 1, playerPos.y + 1);
@@ -850,7 +770,6 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
         window.draw(playerShadow);
     }
 
-    // Color del jugador
     Color playerColor;
     if (player.isMoving) {
         float trail = sin(time * 20.0f) * 0.4f + 0.6f;
@@ -868,7 +787,6 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
         );
     }
 
-    // Jugador principal
     playerCircle.setFillColor(playerColor);
     playerCircle.setOutlineColor(CYBER_WHITE);
     playerCircle.setOutlineThickness(std::max(1.0f, hexSize * 0.08f));
@@ -876,7 +794,6 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
     playerCircle.setPosition(playerPos);
     window.draw(playerCircle);
 
-    // Núcleo del jugador (solo si es lo suficientemente grande)
     if (hexSize > 8) {
         float coreSize = playerSize * 0.4f;
         CircleShape playerCore(coreSize, 6);
@@ -885,7 +802,6 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
         playerCore.setPosition(playerPos);
         window.draw(playerCore);
 
-        // Punto central
         if (hexSize > 12) {
             float dotSize = playerSize * 0.15f;
             CircleShape centerDot(dotSize);
@@ -897,14 +813,12 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
     }
 }
 
-// VERSIÓN SIMPLIFICADA - Agregar al final de Renderer.cpp
 
 void drawIntroScreen(sf::RenderWindow& window, sf::Font& font, sf::Clock& animClock) {
     float time = animClock.getElapsedTime().asSeconds();
     float windowWidth = static_cast<float>(window.getSize().x);
     float windowHeight = static_cast<float>(window.getSize().y);
     
-    // Colores del tema
     const sf::Color NEON_BLUE = sf::Color(0, 200, 255);
     const sf::Color NEON_GREEN = sf::Color(0, 255, 150);
     const sf::Color NEON_PURPLE = sf::Color(180, 100, 255);
@@ -913,7 +827,6 @@ void drawIntroScreen(sf::RenderWindow& window, sf::Font& font, sf::Clock& animCl
     const sf::Color CYBER_WHITE = sf::Color(240, 240, 255);
     const sf::Color PATH_RED = sf::Color(255, 50, 50);
     
-    // Fondo simple
     sf::RectangleShape background(sf::Vector2f(windowWidth, windowHeight));
     background.setFillColor(sf::Color(15, 25, 60));
     window.draw(background);
@@ -921,7 +834,6 @@ void drawIntroScreen(sf::RenderWindow& window, sf::Font& font, sf::Clock& animCl
     float centerX = windowWidth / 2.0f;
     float titleY = 80.0f;
     
-    // Título principal
     sf::Text mainTitle;
     mainTitle.setFont(font);
     mainTitle.setCharacterSize(42);
@@ -940,7 +852,6 @@ void drawIntroScreen(sf::RenderWindow& window, sf::Font& font, sf::Clock& animCl
     ));
     window.draw(mainTitle);
     
-    // Subtítulo
     sf::Text subtitle;
     subtitle.setFont(font);
     subtitle.setCharacterSize(18);
@@ -953,7 +864,6 @@ void drawIntroScreen(sf::RenderWindow& window, sf::Font& font, sf::Clock& animCl
     subtitle.setFillColor(NEON_BLUE);
     window.draw(subtitle);
     
-    // CONTEXTO DEL JUEGO
     float contextY = titleY + 120;
     
     sf::Text contextText;
@@ -989,7 +899,6 @@ void drawIntroScreen(sf::RenderWindow& window, sf::Font& font, sf::Clock& animCl
     contextText3.setPosition(centerX, contextY + 40);
     window.draw(contextText3);
     
-    // CONTROLES
     float controlsY = contextY + 80;
     
     sf::Text controlsTitle;
@@ -1028,7 +937,6 @@ void drawIntroScreen(sf::RenderWindow& window, sf::Font& font, sf::Clock& animCl
         window.draw(controlText);
     }
     
-    // CARACTERÍSTICAS ESPECIALES
     float featuresY = controlsY + 180;
     
     sf::Text featuresTitle;
@@ -1062,7 +970,6 @@ void drawIntroScreen(sf::RenderWindow& window, sf::Font& font, sf::Clock& animCl
         window.draw(featureText);
     }
     
-    // INSTRUCCIÓN PARA COMENZAR
     float startY = featuresY + 100;
     
     sf::Text startText;

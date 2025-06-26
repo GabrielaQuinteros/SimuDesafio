@@ -13,7 +13,6 @@
 #include <iostream>
 #include <vector>
 
-// Definición de constantes para la ventana y recursos
 #define WINDOW_WIDTH 1400  
 #define WINDOW_HEIGHT 900  
 #define MAP_PATH "resources/map.txt"
@@ -22,16 +21,14 @@
 using namespace model;
 using namespace sf;
 
-// FUNCIÓN SIMPLE DE INTRODUCCIÓN DENTRO DEL MAIN
 void mostrarIntro(RenderWindow& window, Font& font) {
-    static Clock introClock; // Reloj estático para animaciones
+    static Clock introClock;
     float time = introClock.getElapsedTime().asSeconds();
     float windowWidth = static_cast<float>(window.getSize().x);
     float windowHeight = static_cast<float>(window.getSize().y);
     float centerX = windowWidth / 2.0f;
     float centerY = windowHeight / 2.0f;
     
-    // Fondo degradado animado
     for (int i = 0; i < window.getSize().y; i += 3) {
         float gradient = static_cast<float>(i) / window.getSize().y;
         float wave = sin(time * 1.5f + gradient * 8.0f) * 0.3f + 0.7f;
@@ -63,7 +60,6 @@ void mostrarIntro(RenderWindow& window, Font& font) {
         window.draw(line);
     }
     
-    // Hexágonos decorativos flotantes
     for (int i = 0; i < 30; ++i) {
         float x = fmod(time * 25.0f + i * 45.0f, windowWidth + 80.0f) - 40.0f;
         float y = 60.0f + sin(time * 0.8f + i * 0.4f) * 25.0f + i * 18.0f;
@@ -87,7 +83,6 @@ void mostrarIntro(RenderWindow& window, Font& font) {
         }
     }
     
-    // Marco hexagonal principal para el título
     for (int i = 0; i < 3; ++i) {
         CircleShape titleHex(80 + i * 15, 6);
         titleHex.setOrigin(80 + i * 15, 80 + i * 15);
@@ -105,7 +100,6 @@ void mostrarIntro(RenderWindow& window, Font& font) {
         window.draw(titleHex);
     }
     
-    // Título principal con efecto pulsante
     Text titulo;
     titulo.setFont(font);
     titulo.setCharacterSize(56);
@@ -124,12 +118,11 @@ void mostrarIntro(RenderWindow& window, Font& font) {
     titulo.setPosition(centerX, centerY - 200);
     window.draw(titulo);
     
-    // Subtítulo elegante
     Text subtitulo;
     subtitulo.setFont(font);
     subtitulo.setCharacterSize(20);
     subtitulo.setStyle(Text::Bold);
-    subtitulo.setString("FABRICA DE ROMPECABEZAS ELITE");
+    subtitulo.setString("FABRICA DE ROMPECABEZAS");
     subtitulo.setFillColor(Color(0, 200, 255));
     
     FloatRect subtitleBounds = subtitulo.getLocalBounds();
@@ -137,14 +130,12 @@ void mostrarIntro(RenderWindow& window, Font& font) {
     subtitulo.setPosition(centerX, centerY - 150);
     window.draw(subtitulo);
     
-    // Líneas decorativas
     RectangleShape line1(Vector2f(350, 2));
     line1.setOrigin(175, 1);
     line1.setPosition(centerX, centerY - 125);
     line1.setFillColor(Color(0, 255, 150));
     window.draw(line1);
     
-    // Panel de contexto central
     RectangleShape contextPanel(Vector2f(700, 120));
     contextPanel.setOrigin(350, 60);
     contextPanel.setPosition(centerX, centerY - 40);
@@ -153,7 +144,6 @@ void mostrarIntro(RenderWindow& window, Font& font) {
     contextPanel.setOutlineThickness(2);
     window.draw(contextPanel);
     
-    // Contexto del juego
     Text contexto1;
     contexto1.setFont(font);
     contexto1.setCharacterSize(16);
@@ -184,7 +174,6 @@ void mostrarIntro(RenderWindow& window, Font& font) {
     contexto3.setPosition(centerX, centerY - 20);
     window.draw(contexto3);
     
-    // Panel de controles izquierdo
     RectangleShape leftPanel(Vector2f(320, 180));
     leftPanel.setPosition(centerX - 380, centerY + 40);
     leftPanel.setFillColor(Color(20, 40, 80, 180));
@@ -221,7 +210,6 @@ void mostrarIntro(RenderWindow& window, Font& font) {
         window.draw(controlText);
     }
     
-    // Panel de modos derecho
     RectangleShape rightPanel(Vector2f(320, 180));
     rightPanel.setPosition(centerX + 60, centerY + 40);
     rightPanel.setFillColor(Color(20, 40, 80, 180));
@@ -258,7 +246,6 @@ void mostrarIntro(RenderWindow& window, Font& font) {
         window.draw(modeText);
     }
     
-    // Panel de características inferiores
     RectangleShape featuresPanel(Vector2f(760, 60));
     featuresPanel.setOrigin(380, 30);
     featuresPanel.setPosition(centerX, centerY + 270);
@@ -298,10 +285,8 @@ void mostrarIntro(RenderWindow& window, Font& font) {
     features2.setPosition(centerX, centerY + 290);
     window.draw(features2);
     
-    // Botón de inicio épico con animación
     float startPulse = sin(time * 6.0f) * 0.5f + 0.5f;
     
-    // Marco del botón
     RectangleShape startButton(Vector2f(500, 50));
     startButton.setOrigin(250, 25);
     startButton.setPosition(centerX, centerY + 350);
@@ -330,7 +315,6 @@ void mostrarIntro(RenderWindow& window, Font& font) {
     startText.setPosition(centerX, centerY + 350);
     window.draw(startText);
     
-    // Hexágonos decorativos alrededor del botón
     for (int i = 0; i < 8; ++i) {
         float angle = (i / 8.0f) * 2 * 3.14159f;
         float x = centerX + cos(angle + time * 2.0f) * 120;
@@ -351,7 +335,6 @@ void mostrarIntro(RenderWindow& window, Font& font) {
         window.draw(hexDeco);
     }
     
-    // Líneas decorativas inferiores
     RectangleShape bottomLine1(Vector2f(200, 2));
     bottomLine1.setOrigin(100, 1);
     bottomLine1.setPosition(centerX - 150, centerY + 400);
@@ -365,12 +348,10 @@ void mostrarIntro(RenderWindow& window, Font& font) {
     window.draw(bottomLine2);
 }
 
-// MEJORADA: Verificar si el camino actual sigue siendo válido
 bool isPathStillValid(const HexGrid& grid, const std::vector<std::pair<int, int>>& pathCells,
                      int playerRow, int playerCol) {
     if (pathCells.empty()) return false;
    
-    // Verificar que el jugador esté en algún punto del camino o cerca del inicio
     bool playerInPath = false;
     for (size_t i = 0; i < pathCells.size(); ++i) {
         if (pathCells[i].first == playerRow && pathCells[i].second == playerCol) {
@@ -379,16 +360,14 @@ bool isPathStillValid(const HexGrid& grid, const std::vector<std::pair<int, int>
         }
     }
    
-    // Si el jugador no está en el camino, verificar si está cerca del inicio
     if (!playerInPath && !pathCells.empty()) {
         const auto& firstStep = pathCells[0];
         int distance = abs(firstStep.first - playerRow) + abs(firstStep.second - playerCol);
         if (distance > 2) {
-            return false; // El jugador está muy lejos del camino
+            return false;
         }
     }
    
-    // Verificar que no haya paredes bloqueando el camino
     for (const auto& cell : pathCells) {
         CellType cellType = grid.at(cell.first, cell.second).type;
         if (cellType == CellType::WALL) {
@@ -399,7 +378,6 @@ bool isPathStillValid(const HexGrid& grid, const std::vector<std::pair<int, int>
     return true;
 }
 
-// MEJORADA: Recalcular camino con mejor manejo de estados
 bool recalculatePath(HexGrid& grid, Player& player, HexCell* goal,
                     std::vector<std::pair<int, int>>& pathCells,
                     bool& showPathVisualization, bool& autoSolveMode) {
@@ -408,7 +386,6 @@ bool recalculatePath(HexGrid& grid, Player& player, HexCell* goal,
     PathfindingResult newPath = findPath(grid, player.row, player.col, goal->row, goal->col, player.energy);
    
     if (newPath.success && !newPath.path.empty()) {
-        // Actualizar el camino
         pathCells.clear();
         for (auto *cell : newPath.path) {
             pathCells.emplace_back(cell->row, cell->col);
@@ -417,7 +394,6 @@ bool recalculatePath(HexGrid& grid, Player& player, HexCell* goal,
         std::cout << "Camino recalculado exitosamente con " << pathCells.size() << " pasos." << std::endl;
         return true;
     } else {
-        // No hay camino disponible - limpiar todo
         std::cout << "No se pudo recalcular el camino. Limpiando estado." << std::endl;
         pathCells.clear();
         showPathVisualization = false;
@@ -430,12 +406,9 @@ bool recalculatePath(HexGrid& grid, Player& player, HexCell* goal,
 
 int main()
 {
-    // Cargar mapa desde archivo
     HexGrid grid = loadHexGridFromFile(MAP_PATH);
 
-    // Obtener celda de inicio
     HexCell *start = findStartCell(grid);
-    // Obtener celda de meta
     HexCell *goal = findGoalCell(grid);
 
     if (!start)
@@ -443,53 +416,42 @@ int main()
     if (!goal)
         return 1;
 
-    // Crear el jugador en la posición inicial
     Player player(start->row, start->col);
 
-    // Inicializar el sistema de turnos
     TurnSystem::resetTurnCounter();
 
-    // Variables de introducción
     bool mostrandoIntro = true;
 
-    // VENTANA MÁS GRANDE Y RESPONSIVE
     RenderWindow window(VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT),
                         "HexEscape: Fabrica de Rompecabezas ",
                         Style::Titlebar | Style::Close | Style::Resize);
     window.setFramerateLimit(60);
 
-    // Cargar la fuente para el texto
     Font font;
     if (!font.loadFromFile(FONT_PATH))
     {
         return 1;
     }
 
-    // Crear elementos gráficos
     Text texto = createText(font, 16, Color::White);
     CircleShape hexagon = createHexagon();
 
-    // Relojes para animaciones ultra precisas
     Clock animationClock;
     Clock backgroundClock;
     Clock victoryClock;
 
-    // Variables de estado del juego
     bool gameWon = false;
     bool showVictoryScreen = false;
-    std::vector<std::pair<int, int>> pathCells; // Vector para mostrar el camino
+    std::vector<std::pair<int, int>> pathCells;
 
-    // VARIABLES PARA LOS MODOS:
-    bool showPathVisualization = false;  // Para mostrar el camino sin ejecutar
-    bool autoSolveMode = false;          // Para activar resolución automática
+    bool showPathVisualization = false;
+    bool autoSolveMode = false;
 
-    // NUEVAS VARIABLES PARA MEJOR CONTROL:
     int lastPlayerRow = -1;
     int lastPlayerCol = -1;
     int lastTurnCount = 0;
     bool pathNeedsUpdate = false;
 
-    // Bucle principal del juego ultra optimizado
     while (window.isOpen())
     {
         Event event;
@@ -498,7 +460,6 @@ int main()
             if (event.type == Event::Closed)
                 window.close();
 
-            // Manejar redimensionamiento de ventana
             if (event.type == Event::Resized)
             {
                 FloatRect visibleArea(0, 0, static_cast<float>(event.size.width), static_cast<float>(event.size.height));
@@ -507,7 +468,6 @@ int main()
 
             if (event.type == Event::KeyPressed)
             {
-                // PANTALLA DE INTRODUCCIÓN
                 if (mostrandoIntro)
                 {
                     if (event.key.code == Keyboard::Space)
@@ -515,7 +475,6 @@ int main()
                         mostrandoIntro = false;
                         std::cout << "=== JUEGO INICIADO ===" << std::endl;
                         std::cout << "¡Bienvenido a HexEscape!" << std::endl;
-                        // Reiniciar relojes para el juego
                         animationClock.restart();
                         backgroundClock.restart();
                     }
@@ -523,10 +482,9 @@ int main()
                     {
                         window.close();
                     }
-                    continue; // No procesar otros inputs durante la intro
+                    continue;
                 }
 
-                // Si ya ganó, solo permitir salir con ESC
                 if (event.key.code == Keyboard::Escape)
                 {
                     if (showVictoryScreen)
@@ -535,7 +493,6 @@ int main()
                     }
                     else
                     {
-                        // ESC cancela todo y vuelve al modo manual
                         std::cout << "=== CANCELANDO TODOS LOS MODOS - VOLVIENDO A MANUAL ===" << std::endl;
                         showPathVisualization = false;
                         autoSolveMode = false;
@@ -543,13 +500,12 @@ int main()
                         pathCells.clear();
                         lastPlayerRow = -1;
                         lastPlayerCol = -1;
-                        std::cout << "Modo manual activado. Usa P para mostrar camino, R para auto-resolución." << std::endl;
+                        std::cout << "Modo manual activado. Usa P para mostrar camino, R para auto-resolucion." << std::endl;
                     }
                 }
                 else if (event.key.code == Keyboard::P && !showVictoryScreen && !autoSolveMode)
                 {
-                    // MODO VISUALIZACIÓN: Solo mostrar el camino
-                    std::cout << "=== MODO VISUALIZACIÓN ACTIVADO ===" << std::endl;
+                    std::cout << "=== MODO VISUALIZACION ACTIVADO ===" << std::endl;
                     PathfindingResult path = findPath(grid, player.row, player.col, goal->row, goal->col, player.energy);
                    
                     if (path.success && !path.path.empty()) {
@@ -563,24 +519,21 @@ int main()
                         autoSolveMode = false;
                         player.isAutoMoving = false;
                        
-                        // Guardar posición del jugador
                         lastPlayerRow = player.row;
                         lastPlayerCol = player.col;
                        
                         std::cout << "Camino mostrado con " << pathCells.size() << " pasos. Presiona T para ejecutar." << std::endl;
                     } else {
-                        // No hay camino disponible
                         pathCells.clear();
                         showPathVisualization = false;
                         lastPlayerRow = -1;
                         lastPlayerCol = -1;
-                        std::cout << "No se encontró camino hacia la meta." << std::endl;
+                        std::cout << "No se encontro camino hacia la meta." << std::endl;
                     }
                 }
                 else if (event.key.code == Keyboard::R && !showVictoryScreen)
                 {
-                    // MODO AUTO-RESOLUCIÓN DIRECTA
-                    std::cout << "=== MODO AUTO-RESOLUCIÓN ACTIVADO ===" << std::endl;
+                    std::cout << "=== MODO AUTO-RESOLUCION ACTIVADO ===" << std::endl;
                     PathfindingResult path = findPath(grid, player.row, player.col, goal->row, goal->col, player.energy);
                    
                     if (path.success && !path.path.empty()) {
@@ -592,39 +545,33 @@ int main()
                        
                         autoSolveMode = true;
                         player.isAutoMoving = true;
-                        showPathVisualization = false; // Modo directo sin visualización
+                        showPathVisualization = false;
                        
                         lastPlayerRow = player.row;
                         lastPlayerCol = player.col;
                        
-                        std::cout << "Auto-resolución iniciada con " << pathCells.size() << " pasos. El jugador se moverá automáticamente." << std::endl;
+                        std::cout << "Auto-resolucion iniciada con " << pathCells.size() << " pasos. El jugador se movera automaticamente." << std::endl;
                     } else {
-                        std::cout << "No se encontró camino para auto-resolución." << std::endl;
+                        std::cout << "No se encontro camino para auto-resolucion." << std::endl;
                     }
                 }
                 else if (event.key.code == Keyboard::T && showPathVisualization && !autoSolveMode && !showVictoryScreen)
                 {
-                    // EJECUTAR EL CAMINO YA MOSTRADO
                     if (!pathCells.empty()) {
                         std::cout << "=== EJECUTANDO CAMINO MOSTRADO ===" << std::endl;
                         autoSolveMode = true;
                         player.isAutoMoving = true;
-                        // Mantener showPathVisualization = true para seguir viendo el camino
                        
-                        std::cout << "Ejecutando camino con " << pathCells.size() << " pasos. El camino permanecerá visible." << std::endl;
+                        std::cout << "Ejecutando camino con " << pathCells.size() << " pasos. El camino permanecera visible." << std::endl;
                     }
                 }
                 else if (!showVictoryScreen && !autoSolveMode && !player.isAutoMoving)
                 {
-                    // MODO MANUAL: Solo permitir movimiento manual si NO está en auto-resolución
-                   
-                    // Recordar posición antes del movimiento
                     int oldRow = player.row;
                     int oldCol = player.col;
                    
                     handlePlayerMovement(event.key.code, player, grid);
                    
-                    // Si el jugador se movió manualmente, limpiar visualización
                     if (player.row != oldRow || player.col != oldCol) {
                         if (showPathVisualization) {
                             pathCells.clear();
@@ -637,14 +584,10 @@ int main()
             }
         }
 
-        // === LÓGICA DEL JUEGO (solo si no estamos en intro) ===
         if (!mostrandoIntro)
         {
-            // DETECCIÓN DE CAMBIOS DE POSICIÓN DEL JUGADOR (por bandas transportadoras)
             if (!autoSolveMode && showPathVisualization) {
                 if (player.row != lastPlayerRow || player.col != lastPlayerCol) {
-                    // El jugador se movió desde que se calculó el camino
-                    // Verificar si el camino sigue siendo válido
                     if (!isPathStillValid(grid, pathCells, player.row, player.col)) {
                         pathCells.clear();
                         showPathVisualization = false;
@@ -654,23 +597,19 @@ int main()
                 }
             }
 
-            // DETECCIÓN DE NUEVAS PAREDES
             int currentTurnCount = TurnSystem::getCurrentTurnCount();
             if (currentTurnCount != lastTurnCount) {
                 lastTurnCount = currentTurnCount;
                 pathNeedsUpdate = true;
             }
 
-            // VERIFICACIÓN Y RECÁLCULO DE CAMINOS
             if (pathNeedsUpdate && !pathCells.empty() && (showPathVisualization || autoSolveMode)) {
                 pathNeedsUpdate = false;
                
                 if (!isPathStillValid(grid, pathCells, player.row, player.col)) {
-                    // El camino está bloqueado, intentar recalcular
                     bool wasExecuting = autoSolveMode;
                    
                     if (!recalculatePath(grid, player, goal, pathCells, showPathVisualization, autoSolveMode)) {
-                        // No se pudo recalcular, detener todo
                         if (wasExecuting) {
                             autoSolveMode = false;
                             player.isAutoMoving = false;
@@ -679,16 +618,13 @@ int main()
                 }
             }
 
-            // ACTUALIZAR AUTO-MOVIMIENTO
             if (autoSolveMode && player.isAutoMoving) {
                 core::updateAutoMovement(grid, player, pathCells, goal->row, goal->col);
                
-                // Si terminó el auto-movimiento, actualizar estado
                 if (!player.isAutoMoving) {
                     std::cout << "=== AUTO-MOVIMIENTO COMPLETADO ===" << std::endl;
                     autoSolveMode = false;
                    
-                    // Si no estaba en modo visualización, limpiar el camino
                     if (!showPathVisualization) {
                         pathCells.clear();
                         std::cout << "Camino limpiado. Volviendo a modo manual." << std::endl;
@@ -701,7 +637,6 @@ int main()
                 }
             }
 
-            // VERIFICAR CONDICIÓN DE VICTORIA
             if (!gameWon && player.hasWon)
             {
                 gameWon = true;
@@ -715,33 +650,27 @@ int main()
                 victoryClock.restart();
             }
 
-            // APLICAR EFECTOS DE BANDAS TRANSPORTADORAS
             if (!showVictoryScreen)
             {
                 handleConveyorMovement(player, grid);
             }
         }
 
-        // RENDERIZAR
         window.clear(Color(5, 10, 20));
 
         if (mostrandoIntro)
         {
-            // PANTALLA DE INTRODUCCIÓN SIMPLE
             mostrarIntro(window, font);
         }
         else if (showVictoryScreen)
         {
-            // PANTALLA DE VICTORIA
             drawVictoryScreen(window, font, player.winTime,
                               TurnSystem::getCurrentTurnCount(), victoryClock);
         }
         else
         {
-            // JUEGO NORMAL
             drawGrid(window, grid, player, hexagon, texto, font, animationClock, backgroundClock, pathCells);
 
-            // Dibujar UI
             drawModernEnergyBar(window, player, font, animationClock);
             drawGameInfo(window, font, TurnSystem::getCurrentTurnCount(), animationClock,
                         showPathVisualization, autoSolveMode);

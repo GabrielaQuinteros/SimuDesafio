@@ -29,8 +29,6 @@ namespace model
        int rows() const { return m_rows; }
        int cols() const { return m_cols; }
 
-
-       // Verifica si una celda est� dentro de los l�mites del grid
        bool inBounds(int row, int col) const {
            return row >= 0 && row < m_rows && col >= 0 && col < m_cols;
        };

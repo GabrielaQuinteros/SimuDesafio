@@ -32,7 +32,6 @@ HexGrid loadHexGridFromFile(const string &filepath)
 
     int rows = lines.size();
     
-    // Encontrar la longitud máxima de todas las filas
     int maxCols = 0;
     for (const auto& row : lines) {
         maxCols = max(maxCols, static_cast<int>(row.size()));
@@ -44,9 +43,8 @@ HexGrid loadHexGridFromFile(const string &filepath)
     {
         for (int c = 0; c < maxCols; ++c)
         {
-            char ch = '.'; // Valor por defecto si la fila es más corta
+            char ch = '.'; 
             
-            // Solo acceder al carácter si existe en esta fila
             if (c < static_cast<int>(lines[r].size())) {
                 ch = lines[r][c];
             }

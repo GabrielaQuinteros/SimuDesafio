@@ -8,13 +8,13 @@
 namespace core {
 
 /**
- * @brief Actualiza el movimiento automático del jugador siguiendo un camino predefinido
+ * @brief 
  * 
- * @param grid La grilla hexagonal del juego
- * @param player Referencia al jugador
- * @param pathCells Vector con las coordenadas del camino a seguir
- * @param goalRow Fila de la meta
- * @param goalCol Columna de la meta
+ * @param grid 
+ * @param player 
+ * @param pathCells 
+ * @param goalRow 
+ * @param goalCol 
  */
 void updateAutoMovement(
     model::HexGrid& grid,
@@ -26,4 +26,4 @@ void updateAutoMovement(
 
 }
 
-#endif // AUTOMOVEMENT_HPP
+#endif 

@@ -3,17 +3,14 @@
 
 namespace model
 {
-
-
-    //Tipos de celdas
     enum class CellType
     {
-        EMPTY, //Celda común
+        EMPTY,
         WALL,
         START,
         GOAL,
         ITEM,
-        //Bandas transportadoras
+
         UP_RIGHT,
         UP_LEFT,
         RIGHT,
@@ -27,11 +24,11 @@ namespace model
     {
         int row, col;
         CellType type;
-        //Verifica si el jugador estás obre la celda
+
         bool hasPlayer = false;
 
 
-        HexCell(int r, int c, CellType t) //Fila, columna y tipo de celda
+        HexCell(int r, int c, CellType t) 
             : row(r), col(c), type(t) {}
     };
 }
