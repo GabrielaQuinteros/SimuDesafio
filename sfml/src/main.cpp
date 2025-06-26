@@ -22,6 +22,7 @@
 #define WINDOW_HEIGHT 900  
 #define MAP_PATH "resources/map.txt"
 #define FONT_PATH "resources/arial.ttf"
+#define ICON_PATH "resources/pasteicon.png"
 
 using namespace model;
 using namespace sf;
@@ -275,7 +276,9 @@ bool isCurrentSelectionValid() {
     return availableMaps[selectedMapIndex].isValid;
 }
 
-void mostrarSelectorMapas(RenderWindow& window, Font& font) {
+std::string mappath = "O tambien puedes P para usar la direccion pegada en el portapapeles.\nEj: C:\\Docs\\mymap.txt";
+
+void mostrarSelectorMapas(RenderWindow& window, Font& font, Texture& icon) {
     static Clock selectorClock;
     float time = selectorClock.getElapsedTime().asSeconds();
     float windowWidth = static_cast<float>(window.getSize().x);
@@ -455,7 +458,7 @@ void mostrarSelectorMapas(RenderWindow& window, Font& font) {
         indicator.setOrigin(12, 12);
         indicator.setPosition(centerX - 390, itemY);
         indicator.setFillColor(Color::Transparent);
-        
+
         if (!availableMaps[i].isValid) {
             indicator.setOutlineColor(Color(255, 80, 80));
         } else if (availableMaps[i].isDefault) {
@@ -524,7 +527,7 @@ void mostrarSelectorMapas(RenderWindow& window, Font& font) {
         mapInfo.setPosition(centerX - 350, itemY + 5);
         window.draw(mapInfo);
     }
-    
+
     // === FOOTER SECTION ===
     float footerY = contentY + 320;
     
@@ -561,7 +564,37 @@ void mostrarSelectorMapas(RenderWindow& window, Font& font) {
     mapStats.setOrigin(statsBounds.width / 2, statsBounds.height / 2);
     mapStats.setPosition(centerX + 300, footerY);
     window.draw(mapStats);
-    
+
+    // Panel de fondo para la ruta pegada, centrado y con espacio para el icono
+    float pathPanelWidth = 800;
+    float pathPanelHeight = 100;
+    float pathPanelY = centerY + 275;
+    float pathPanelX = centerX - 400;
+
+    RectangleShape pathRect(Vector2f(pathPanelWidth, pathPanelHeight));
+    pathRect.setPosition(pathPanelX, pathPanelY);
+    pathRect.setFillColor(Color::White);
+    pathRect.setOutlineColor(Color(0, 200, 255, 80));
+    pathRect.setOutlineThickness(2);
+    window.draw(pathRect);
+
+
+    Text pathIndicator(mappath, font);
+    pathIndicator.setCharacterSize(18);
+    FloatRect pathBounds = pathIndicator.getLocalBounds();
+    pathIndicator.setOrigin(pathBounds.width / 2, 0);
+    pathIndicator.setColor(Color::Black);
+    pathIndicator.setPosition(centerX - 100, centerY + 300);
+    window.draw(pathIndicator);
+
+
+    Sprite iconSprite;
+    iconSprite.setTexture(icon);
+    iconSprite.setScale(0.12f, 0.12f);
+    iconSprite.setOrigin(50, 50);
+    iconSprite.setPosition(centerX + 300, centerY + 300);
+    window.draw(iconSprite);
+
     // === SELECTION INFO SECTION ===
     if (!availableMaps.empty() && selectedMapIndex >= 0 && 
         selectedMapIndex < static_cast<int>(availableMaps.size())) {
@@ -1106,6 +1139,12 @@ int main()
         std::cout << "Error: No se pudo cargar la fuente " << FONT_PATH << std::endl;
         return 1;
     }
+    Texture icon;
+	if (!icon.loadFromFile(ICON_PATH))
+	{
+		std::cout << "Error: No se pudo cargar el icono " << ICON_PATH << std::endl;
+		return 1;
+	}
 
     // MODIFICADO: Variables que se inicializarán después de seleccionar el mapa
     HexGrid* grid = nullptr;
@@ -1472,7 +1511,31 @@ int main()
         else if (mostrandoSelector) // NUEVO
         {
             // SELECTOR DE MAPAS
-            mostrarSelectorMapas(window, font);
+            mostrarSelectorMapas(window, font, icon);
+            if (event.key.code == Keyboard::P) {
+				selectedMapPath = Clipboard::getString();
+                mostrandoSelector = false;
+                if (loadSelectedMap(selectedMapPath, grid, start, goal, player)) {
+                    std::cout << "=== ÉXITO: JUEGO INICIADO ===" << std::endl;
+                    animationClock.restart();
+                    backgroundClock.restart();
+                } else {
+                    std::cout << "=== ERROR: No se pudo cargar ===" << std::endl;
+                    if (selectedMapPath != MAP_PATH) {
+                        if (loadSelectedMap(MAP_PATH, grid, start, goal, player)) {
+                            std::cout << "=== ÉXITO CON MAPA POR DEFECTO ===" << std::endl;
+                            animationClock.restart();
+                            backgroundClock.restart();
+                        }
+                        else {
+                            window.close();
+                        }
+                    }
+                    else {
+                        window.close();
+                    }
+                }
+            }
         }
         else if (showVictoryScreen && grid && player)
         {
