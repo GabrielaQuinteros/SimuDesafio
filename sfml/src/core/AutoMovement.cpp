@@ -83,14 +83,37 @@ void updateAutoMovement(
 
     // Verificar si hemos completado el camino
     if (currentIndex >= static_cast<int>(pathCells.size())) {
-        player.isAutoMoving = false;
-        std::cout << "¡Camino completado!" << std::endl;
+        // VERIFICACIÓN FINAL: ¿Realmente llegamos a la meta?
+        HexCell* goalCell = &grid.at(goalRow, goalCol);
+        if (player.row == goalRow && player.col == goalCol && goalCell->type == CellType::GOAL) {
+            std::cout << "¡Camino completado! Jugador confirmado en META (" << player.row << ", " << player.col << ")" << std::endl;
+            player.isAutoMoving = false;
+            
+            // Si por alguna razón no se detectó la victoria, forzarla
+            if (!player.hasWon) {
+                std::cout << "Victoria no detectada automáticamente. Verificando manualmente..." << std::endl;
+                if (grid.at(player.row, player.col).type == CellType::GOAL) {
+                    player.hasWon = true;
+                    player.winTime = player.winClock.getElapsedTime().asSeconds();
+                    std::cout << "¡VICTORIA MANUAL ACTIVADA!" << std::endl;
+                }
+            }
+        } else {
+            std::cout << "¡ADVERTENCIA! Camino completado pero jugador NO está en la meta." << std::endl;
+            std::cout << "Posición jugador: (" << player.row << ", " << player.col << ")" << std::endl;
+            std::cout << "Posición meta: (" << goalRow << ", " << goalCol << ")" << std::endl;
+            player.isAutoMoving = false;
+        }
         return;
     }
 
     // Obtener el siguiente paso
     int nextR = pathCells[currentIndex].first;
     int nextC = pathCells[currentIndex].second;
+
+    std::cout << "Auto-movimiento: Paso " << (currentIndex + 1) << "/" << pathCells.size() 
+              << " - Ir a (" << nextR << ", " << nextC << ")" << std::endl;
+    std::cout << "Posición actual: (" << player.row << ", " << player.col << ")" << std::endl;
 
     // Verificar si el siguiente paso es la meta
     if (nextR == goalRow && nextC == goalCol && grid.at(nextR, nextC).type == CellType::GOAL) {
@@ -99,13 +122,19 @@ void updateAutoMovement(
         int dC = nextC - player.col;
         Keyboard::Key dir = keyFromDelta(dR, dC, player.row);
         
-        std::cout << "¡Llegando a la meta!" << std::endl;
+        std::cout << "Moviéndose a la META en (" << nextR << ", " << nextC << ")" << std::endl;
         handlePlayerMovement(dir, player, grid);
         
-        // Si llegamos a la meta, detener el auto-movimiento
+        // IMPORTANTE: Solo detener auto-movimiento DESPUÉS de verificar si realmente ganó
+        // La detección de victoria ocurre dentro de handlePlayerMovement
         if (player.hasWon) {
             player.isAutoMoving = false;
-            std::cout << "¡¡¡VICTORIA AUTOMÁTICA!!!" << std::endl;
+            std::cout << "¡¡¡VICTORIA AUTOMÁTICA CONFIRMADA!!!" << std::endl;
+        } else {
+            // Si por alguna razón no ganó, verificar manualmente
+            if (player.row == goalRow && player.col == goalCol) {
+                std::cout << "Jugador en posición de meta pero hasWon no está activo. Verificando..." << std::endl;
+            }
         }
         return;
     }
@@ -175,10 +204,22 @@ void updateAutoMovement(
     
     // Ejecutar el movimiento
     Keyboard::Key dir = keyFromDelta(dR, dC, player.row);
+    
+    std::cout << "Ejecutando movimiento normal: dirección " << static_cast<int>(dir) << std::endl;
+    std::cout << "Delta: (" << dR << ", " << dC << ") desde (" << player.row << ", " << player.col << ") hacia (" << nextR << ", " << nextC << ")" << std::endl;
+    
     handlePlayerMovement(dir, player, grid);
     
-    // Debug: mostrar progreso
-    std::cout << "Auto-movimiento: (" << player.row << ", " << player.col << ") -> (" << nextR << ", " << nextC << ")" << std::endl;
+    // Verificar si el movimiento fue exitoso
+    if (player.row == nextR && player.col == nextC) {
+        std::cout << "Movimiento exitoso a (" << player.row << ", " << player.col << ")" << std::endl;
+    } else {
+        std::cout << "¡ADVERTENCIA! Movimiento no exitoso. Posición esperada: (" << nextR << ", " << nextC << "), posición actual: (" << player.row << ", " << player.col << ")" << std::endl;
+    }
+    
+    // Debug: mostrar tipo de celda actual
+    CellType currentCellType = grid.at(player.row, player.col).type;
+    std::cout << "Tipo de celda actual: " << static_cast<int>(currentCellType) << std::endl;
 }
 
 }

@@ -111,6 +111,8 @@ std::vector<std::pair<int, int> > getStepByStepPath(
        
         // CASO ESPECIAL: Si el target es la META
         if (grid.at(targetRow, targetCol).type == model::CellType::GOAL) {
+            std::cout << "Procesando llegada a META: (" << targetRow << ", " << targetCol << ")" << std::endl;
+            
             // Verificar si la META ya está en el path
             bool metaAlreadyAdded = false;
             for (const auto& point : completePath) {
@@ -122,7 +124,9 @@ std::vector<std::pair<int, int> > getStepByStepPath(
             
             if (!metaAlreadyAdded) {
                 completePath.push_back({targetRow, targetCol});
-                std::cout << "META agregada al camino final." << std::endl;
+                std::cout << "META agregada al camino final en posición " << completePath.size() << std::endl;
+            } else {
+                std::cout << "META ya estaba en el camino." << std::endl;
             }
             continue;
         }
@@ -300,10 +304,7 @@ PathfindingResult findPath(
                 std::vector<std::pair<int, int> > keyPoints;
                 std::tuple<int, int, int> key = std::make_tuple(current.row, current.col, current.energy);
                 
-                // Primero agregar la META como último paso
-                keyPoints.push_back(std::make_pair(nr, nc));
-                
-                // Luego reconstruir hacia atrás
+                // Luego reconstruir hacia atrás (SIN incluir la meta todavía)
                 while (cameFrom.count(key)) {
                     std::tuple<int, int, int> prev = cameFrom[key];
                     keyPoints.push_back(std::make_pair(std::get<0>(key), std::get<1>(key)));
@@ -311,6 +312,9 @@ PathfindingResult findPath(
                 }
                 keyPoints.push_back(std::make_pair(actualStartRow, actualStartCol));
                 std::reverse(keyPoints.begin(), keyPoints.end());
+                
+                // AGREGAR la META como último paso DESPUÉS de reconstruir
+                keyPoints.push_back(std::make_pair(nr, nc));
                 
                 // CORREGIDO: SIEMPRE usar getStepByStepPath para capturar todos los pasos
                 std::vector<std::pair<int, int> > completePath = getStepByStepPath(grid, keyPoints, initialEnergy);
@@ -321,7 +325,14 @@ PathfindingResult findPath(
                     path.push_back(&grid.at(point.first, point.second));
                 }
                 
+                // VERIFICAR que la META esté como último elemento
+                if (path.empty() || path.back()->row != goalRow || path.back()->col != goalCol) {
+                    std::cout << "AÑADIENDO META como último paso del camino" << std::endl;
+                    path.push_back(&grid.at(goalRow, goalCol));
+                }
+                
                 std::cout << "Camino directo a META generado con " << path.size() << " pasos." << std::endl;
+                std::cout << "Último paso del camino: (" << path.back()->row << ", " << path.back()->col << ")" << std::endl;
                 return PathfindingResult{path, true};
             }
 
@@ -345,10 +356,7 @@ PathfindingResult findPath(
                     std::vector<std::pair<int, int> > keyPoints;
                     std::tuple<int, int, int> key = std::make_tuple(current.row, current.col, current.energy);
                     
-                    // Primero agregar la META como último paso
-                    keyPoints.push_back(std::make_pair(finalR, finalC));
-                    
-                    // Luego reconstruir hacia atrás
+                    // Luego reconstruir hacia atrás (SIN incluir la meta todavía)
                     while (cameFrom.count(key)) {
                         std::tuple<int, int, int> prev = cameFrom[key];
                         keyPoints.push_back(std::make_pair(std::get<0>(key), std::get<1>(key)));
@@ -356,6 +364,9 @@ PathfindingResult findPath(
                     }
                     keyPoints.push_back(std::make_pair(actualStartRow, actualStartCol));
                     std::reverse(keyPoints.begin(), keyPoints.end());
+                    
+                    // AGREGAR la META como último paso DESPUÉS de reconstruir
+                    keyPoints.push_back(std::make_pair(finalR, finalC));
                     
                     // IMPORTANTE: SÍ usar getStepByStepPath para capturar todos los pasos via bandas
                     std::vector<std::pair<int, int> > completePath = getStepByStepPath(grid, keyPoints, initialEnergy);
@@ -368,10 +379,12 @@ PathfindingResult findPath(
                     
                     // ASEGURAR que la META esté incluida como último paso
                     if (path.empty() || path.back()->row != goalRow || path.back()->col != goalCol) {
+                        std::cout << "AÑADIENDO META como último paso del camino via bandas" << std::endl;
                         path.push_back(&grid.at(goalRow, goalCol));
                     }
                     
                     std::cout << "Camino via bandas a META generado con " << path.size() << " pasos." << std::endl;
+                    std::cout << "Último paso del camino: (" << path.back()->row << ", " << path.back()->col << ")" << std::endl;
                     return PathfindingResult{path, true};
                 }
             }
