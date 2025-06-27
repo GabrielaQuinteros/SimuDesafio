@@ -11,7 +11,7 @@ namespace fs = std::filesystem;
 
 std::vector<MapInfo> availableMaps;
 int selectedMapIndex = 0;
-std::string mappath = "Tambien puedes copiar la ruta del mapa que tengas, por ejemplo: C:\\Docs\\mymap.txt. Luego, regresa a la terminal, presiona la tecla P y se abrira tu mapa automaticamente.";
+std::string mappath = "Tambien puedes copiar la ruta del mapa que tengas, por ejemplo: C:\\Docs\\mymap.txt. Luego presiona la tecla P y se abrira tu mapa automaticamente.";
 
 bool isValidMapFile(const std::string& filepath) {
     try {
@@ -564,9 +564,9 @@ void mostrarSelectorMapas(RenderWindow& window, Font& font) {
     drawHexagon(window, centerX + 400, pathPanelY, 12, Color(64, 120, 255, 80), -time * 18.0f);
 
     // Dividir el texto en líneas más legibles
-    std::string line1 = "Tambien puedes copiar la ruta del mapa que tengas, por ejemplo:";
-    std::string line2 = "C:\\Docs\\mymap.txt. Luego, regresa a la terminal, presiona la";
-    std::string line3 = "tecla P y se abrira tu mapa automaticamente.";
+    std::string line1 = "Tambien puedes copiar la ruta absoluta del mapa que tengas desde tu portapapeles, ";
+    std::string line2 = "por ejemplo: C:\\Docs\\mymap.txt. Luego presiona la";
+    std::string line3 = "tecla P y se abrira tu mapa, si es valido.";
     
     Text pathLine1, pathLine2, pathLine3;
     pathLine1.setFont(font);
