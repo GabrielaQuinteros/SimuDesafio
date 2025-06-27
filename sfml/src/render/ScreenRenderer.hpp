@@ -11,6 +11,5 @@ void drawGameTitle(RenderWindow& window, Font& font, Clock& animClock);
 
 void drawAnimatedBackground(RenderWindow& window, Clock& bgClock);
 
-void drawIntroScreen(RenderWindow& window, Font& font, Clock& animClock);
 
 #endif

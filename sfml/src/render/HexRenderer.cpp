@@ -220,8 +220,22 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
                 text.setString(CellTypeToString(cell.type));
                 text.setCharacterSize(textSize);
                 text.setStyle(Text::Bold);
-                text.setFillColor(Color(20, 20, 40));
-                text.setPosition(pos.x - hexSize * 0.3f, pos.y - hexSize * 0.3f);
+                
+                // Hacer las paredes más visibles
+                if (cell.type == CellType::WALL) {
+                    text.setFillColor(Color::White);  // Blanco para máximo contraste
+                    text.setCharacterSize(std::min(textSize + 4, static_cast<int>(hexSize * 0.8f)));  // Paredes más grandes
+                } else {
+                    text.setFillColor(Color(20, 20, 40));
+                    text.setCharacterSize(textSize);
+                }
+                
+                // Centrar mejor el texto dentro del hexágono
+                FloatRect textBounds = text.getLocalBounds();
+                text.setPosition(
+                    pos.x - textBounds.width / 2, 
+                    pos.y - textBounds.height / 2
+                );
                 window.draw(text);
             }
         }

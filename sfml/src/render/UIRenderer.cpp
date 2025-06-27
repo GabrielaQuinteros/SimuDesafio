@@ -60,11 +60,11 @@ void drawModernEnergyBar(RenderWindow& window, const Player& player, Font& font,
 
     Text energyText;
     energyText.setFont(font);
-    energyText.setCharacterSize(14);
+    energyText.setCharacterSize(14); 
     energyText.setFillColor(CYBER_WHITE);
     energyText.setStyle(Text::Bold);
     energyText.setString("ENERGIA: " + std::to_string(player.energy) + "/" + std::to_string(Player::MAX_ENERGY));
-    energyText.setPosition(barX, barY - 22);
+    energyText.setPosition(barX, barY - 24); // Ajustado por el tamaño mayor
     window.draw(energyText);
 
     if (player.canUseWallBreak()) {
@@ -72,33 +72,33 @@ void drawModernEnergyBar(RenderWindow& window, const Player& player, Font& font,
 
         Text abilityText;
         abilityText.setFont(font);
-        abilityText.setCharacterSize(13);
+        abilityText.setCharacterSize(15); 
         abilityText.setFillColor(Color(
             static_cast<Uint8>(ELECTRIC_YELLOW.r * pulse),
             static_cast<Uint8>(ELECTRIC_YELLOW.g * pulse),
             static_cast<Uint8>(ELECTRIC_YELLOW.b)
         ));
         abilityText.setStyle(Text::Bold);
-        abilityText.setString("SPACE: DESTRUIR PARED");
-        abilityText.setPosition(barX, barY - 42);
+        abilityText.setString("ESPACIO: DESTRUIR PARED");
+        abilityText.setPosition(barX, barY - 46); 
         window.draw(abilityText);
     }
     else if (player.isSelectingWall) {
         Text selectText;
         selectText.setFont(font);
-        selectText.setCharacterSize(12);
+        selectText.setCharacterSize(14); 
         selectText.setFillColor(NEON_ORANGE);
         selectText.setString("SELECCIONA DIRECCION - ESC: CANCELAR");
-        selectText.setPosition(barX, barY - 42);
+        selectText.setPosition(barX, barY - 46);
         window.draw(selectText);
     }
     else {
         Text waitText;
         waitText.setFont(font);
-        waitText.setCharacterSize(11);
+        waitText.setCharacterSize(13); 
         waitText.setFillColor(Color(150, 180, 200));
         waitText.setString("ACUMULA ENERGIA PARA HABILIDADES");
-        waitText.setPosition(barX, barY - 42);
+        waitText.setPosition(barX, barY - 46);
         window.draw(waitText);
     }
 }
@@ -133,95 +133,95 @@ void drawGameInfo(RenderWindow& window, Font& font, int turnCount, Clock& animCl
 
     Text titleText;
     titleText.setFont(font);
-    titleText.setCharacterSize(12);
+    titleText.setCharacterSize(14); 
     titleText.setFillColor(CYBER_WHITE);
     titleText.setStyle(Text::Bold);
-    titleText.setString("STATUS");
+    titleText.setString("ESTADO");
     titleText.setPosition(panelX + 15, panelY + 10);
     window.draw(titleText);
 
     Text turnText;
     turnText.setFont(font);
-    turnText.setCharacterSize(11);
+    turnText.setCharacterSize(12); 
     turnText.setFillColor(CYBER_WHITE);
-    turnText.setString("TURNS: " + std::to_string(turnCount));
+    turnText.setString("TURNOS: " + std::to_string(turnCount));
     turnText.setPosition(panelX + 15, panelY + 30);
     window.draw(turnText);
 
     int turnsUntilWall = 5 - (turnCount % 5);
     Text eventText;
     eventText.setFont(font);
-    eventText.setCharacterSize(11);
+    eventText.setCharacterSize(12); 
     eventText.setFillColor(CYBER_WHITE);
-    eventText.setString("WALL: " + std::to_string(turnsUntilWall == 5 ? 0 : turnsUntilWall));
+    eventText.setString("PARED: " + std::to_string(turnsUntilWall == 5 ? 0 : turnsUntilWall));
     eventText.setPosition(panelX + 15, panelY + 45);
     window.draw(eventText);
 
     Text timeText;
     timeText.setFont(font);
-    timeText.setCharacterSize(10);
+    timeText.setCharacterSize(11); 
     timeText.setFillColor(CYBER_WHITE);
-    timeText.setString("TIME: " + std::to_string(static_cast<int>(time)) + "S");
+    timeText.setString("TIEMPO: " + std::to_string(static_cast<int>(time)) + "S");
     timeText.setPosition(panelX + 15, panelY + 60);
     window.draw(timeText);
 
     Text modeText;
     modeText.setFont(font);
-    modeText.setCharacterSize(11);
+    modeText.setCharacterSize(12); 
     modeText.setStyle(Text::Bold);
     modeText.setPosition(panelX + 15, panelY + 80);
 
     if (autoSolveMode && showPathVisualization) {
         // Modo: Ejecutando camino mostrado
         modeText.setFillColor(ELECTRIC_YELLOW);
-        modeText.setString("MODE: EXECUTING");
+        modeText.setString("MODO: EJECUTANDO");
     } else if (autoSolveMode && !showPathVisualization) {
         // Modo: Auto-resolución directa
         modeText.setFillColor(NEON_ORANGE);
-        modeText.setString("MODE: AUTO");
+        modeText.setString("MODO: AUTO");
     } else if (showPathVisualization && !autoSolveMode) {
         // Modo: Solo mostrando camino
         modeText.setFillColor(PATH_RED);
-        modeText.setString("MODE: PREVIEW");
+        modeText.setString("MODO: VISTA PREVIA");
     } else {
         // Modo manual
         modeText.setFillColor(NEON_GREEN);
-        modeText.setString("MODE: MANUAL");
+        modeText.setString("MODO: MANUAL");
     }
     window.draw(modeText);
 
     Text instructionText;
     instructionText.setFont(font);
-    instructionText.setCharacterSize(9);
+    instructionText.setCharacterSize(10); // Era 9, ahora 10
     instructionText.setPosition(panelX + 15, panelY + 100);
 
     if (autoSolveMode && showPathVisualization) {
         instructionText.setFillColor(ELECTRIC_YELLOW);
-        instructionText.setString("EXECUTING PATH...");
+        instructionText.setString("EJECUTANDO RUTA...");
     } else if (autoSolveMode && !showPathVisualization) {
         instructionText.setFillColor(NEON_ORANGE);
-        instructionText.setString("AUTO-SOLVING...");
+        instructionText.setString("RESOLVIENDO AUTO...");
     } else if (showPathVisualization && !autoSolveMode) {
         instructionText.setFillColor(ELECTRIC_YELLOW);
-        instructionText.setString("T: EXECUTE | ESC: CANCEL");
+        instructionText.setString("T: EJECUTAR | ESC: CANCELAR");
     } else {
         instructionText.setFillColor(CYBER_WHITE);
-        instructionText.setString("P: PREVIEW | R: AUTO");
+        instructionText.setString("P: VISTA PREVIA | R: AUTO");
     }
     window.draw(instructionText);
 
     Text optionsText;
     optionsText.setFont(font);
-    optionsText.setCharacterSize(8);
+    optionsText.setCharacterSize(9); 
     optionsText.setFillColor(Color(150, 180, 200));
     optionsText.setPosition(panelX + 15, panelY + 120);
    
     if (autoSolveMode) {
-        optionsText.setString("ESC: STOP");
+        optionsText.setString("ESC: PARAR");
     } else if (showPathVisualization) {
-        optionsText.setString("T: RUN | R: DIRECT");
+        optionsText.setString("T: EJECUTAR | R: DIRECTO");
     } else {
-        optionsText.setString("P: SHOW | R: SOLVE");
+        optionsText.setString("P: MOSTRAR | R: RESOLVER");
     }
     window.draw(optionsText);
 }
@@ -251,35 +251,35 @@ void drawModernControls(RenderWindow& window, Font& font, Clock& animClock) {
 
     Text titleText;
     titleText.setFont(font);
-    titleText.setCharacterSize(12);
+    titleText.setCharacterSize(14); 
     titleText.setFillColor(CYBER_WHITE);
     titleText.setStyle(Text::Bold);
-    titleText.setString("CONTROLS");
+    titleText.setString("CONTROLES");
     titleText.setPosition(panelX + 15, panelY + 10);
     window.draw(titleText);
 
     std::vector<std::string> controls;
-    controls.push_back("W/E: UP");
-    controls.push_back("A/D: SIDE");
-    controls.push_back("Z/X: DOWN");
-    controls.push_back("SPACE: POWER");
-    controls.push_back("P: SHOW PATH");
-    controls.push_back("R: AUTO-SOLVE");    
-    controls.push_back("T: RUN PATH");      
-    controls.push_back("ESC: CANCEL");
+    controls.push_back("W/E: ARRIBA");
+    controls.push_back("A/D: LADOS");
+    controls.push_back("Z/X: ABAJO");
+    controls.push_back("ESPACIO: PODER");
+    controls.push_back("P: MOSTRAR RUTA");
+    controls.push_back("T: EJECUTAR RUTA");  
+    controls.push_back("R: AUTO-RESOLVER");      
+    controls.push_back("ESC: CANCELAR");
 
     for (size_t i = 0; i < controls.size(); ++i) {
         Text controlText;
         controlText.setFont(font);
-        controlText.setCharacterSize(9);
+        controlText.setCharacterSize(10); 
        
-        if (i == 4) { // P: SHOW PATH
+        if (i == 4) { 
             controlText.setFillColor(PATH_RED);
             controlText.setStyle(Text::Bold);
-        } else if (i == 5) { // R: AUTO-SOLVE
+        } else if (i == 5) { 
             controlText.setFillColor(NEON_ORANGE);
             controlText.setStyle(Text::Bold);
-        } else if (i == 6) { // T: RUN PATH
+        } else if (i == 6) { 
             controlText.setFillColor(ELECTRIC_YELLOW);
             controlText.setStyle(Text::Bold);
         } else {

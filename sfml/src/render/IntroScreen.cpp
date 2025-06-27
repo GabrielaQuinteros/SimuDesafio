@@ -105,7 +105,7 @@ void mostrarIntro(RenderWindow& window, Font& font) {
     subtitulo.setFont(font);
     subtitulo.setCharacterSize(20);
     subtitulo.setStyle(Text::Bold);
-    subtitulo.setString("FABRICA DE ROMPECABEZAS ELITE");
+    subtitulo.setString("FABRICA DE ROMPECABEZAS");
     subtitulo.setFillColor(Color(0, 200, 255));
     
     FloatRect subtitleBounds = subtitulo.getLocalBounds();
@@ -150,7 +150,7 @@ void mostrarIntro(RenderWindow& window, Font& font) {
     Text contexto3;
     contexto3.setFont(font);
     contexto3.setCharacterSize(16);
-    contexto3.setString("y usa tu energia acumulada para destruir obstaculos. ¡Escapa!");
+    contexto3.setString("y usa tu energia acumulada para destruir obstaculos.");
     contexto3.setFillColor(Color::White);
     FloatRect context3Bounds = contexto3.getLocalBounds();
     contexto3.setOrigin(context3Bounds.width / 2, context3Bounds.height / 2);
@@ -178,7 +178,7 @@ void mostrarIntro(RenderWindow& window, Font& font) {
         "A / D  -  Izquierda / Derecha", 
         "Z / X  -  Abajo Diagonal",
         "",
-        "SPACE  -  Romper Pared",
+        "SPACE + (W,E,A,D,Z,X)  -  Romper Pared",
         "         (Energia Llena)"
     };
     
@@ -211,8 +211,9 @@ void mostrarIntro(RenderWindow& window, Font& font) {
     
     std::vector<std::pair<std::string, Color>> gameModes = {
         {"P  -  Mostrar Camino Optimo", Color(255, 50, 50)},
-        {"R  -  Auto-Resolver Directo", Color(255, 150, 0)},
         {"T  -  Ejecutar Camino", Color(255, 255, 0)},
+        {"R  -  Auto-Resolver Directo", Color(255, 150, 0)},
+        
         {"", Color::White},
         {"ESC  -  Cancelar / Salir", Color(200, 200, 200)}
     };
@@ -250,7 +251,7 @@ void mostrarIntro(RenderWindow& window, Font& font) {
     Text features;
     features.setFont(font);
     features.setCharacterSize(12);
-    features.setString("• Bandas Transportadoras Automaticas  • Sistema de Energia Dinamico  • Paredes Cada 5 Turnos");
+    features.setString("Bandas Transportadoras Automaticas, Sistema de Energia Dinamico, Paredes Cada 5 Turnos");
     features.setFillColor(Color(180, 180, 255));
     FloatRect featuresBounds2 = features.getLocalBounds();
     features.setOrigin(featuresBounds2.width / 2, featuresBounds2.height / 2);
@@ -260,7 +261,7 @@ void mostrarIntro(RenderWindow& window, Font& font) {
     Text features2;
     features2.setFont(font);
     features2.setCharacterSize(12);
-    features2.setString("• Pathfinding Inteligente A*  • Grid Hexagonal Futurista  • Multiples Modos de Solucion");
+    features2.setString("Pathfinding Inteligente A*, Grid Hexagonal Futurista, Multiples Modos de Solucion");
     features2.setFillColor(Color(180, 180, 255));
     FloatRect features2Bounds = features2.getLocalBounds();
     features2.setOrigin(features2Bounds.width / 2, features2Bounds.height / 2);

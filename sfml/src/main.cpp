@@ -33,7 +33,7 @@ int main()
     for (size_t i = 0; i < availableMaps.size(); ++i) {
         std::cout << i << ". " << availableMaps[i].displayName 
                   << " (" << availableMaps[i].filename << ") - "
-                  << (availableMaps[i].isValid ? "VÁLIDO" : "INVÁLIDO")
+                  << (availableMaps[i].isValid ? "VALIDO" : "INVALIDO")
                   << (availableMaps[i].isDefault ? " [DEFECTO]" : "") << std::endl;
     }
     std::cout << "Total: " << availableMaps.size() << " mapas" << std::endl;
@@ -116,8 +116,8 @@ int main()
                     std::cout << "TECLA PRESIONADA: " << event.key.code << std::endl;
                     std::cout << "ENTER = " << Keyboard::Enter << ", ESC = " << Keyboard::Escape << std::endl;
                     std::cout << "W = " << Keyboard::W << ", S = " << Keyboard::S << std::endl;
-                    std::cout << "- Número de mapas: " << availableMaps.size() << std::endl;
-                    std::cout << "- Índice seleccionado: " << selectedMapIndex << std::endl;
+                    std::cout << "- Numero de mapas: " << availableMaps.size() << std::endl;
+                    std::cout << "- Indice seleccionado: " << selectedMapIndex << std::endl;
                     
                     if (event.key.code == Keyboard::Escape)
                     {
@@ -130,13 +130,13 @@ int main()
                             animationClock.restart();
                             backgroundClock.restart();
                         } else {
-                            std::cout << "Error crítico: No se puede cargar el mapa por defecto" << std::endl;
+                            std::cout << "Error critico: No se puede cargar el mapa por defecto" << std::endl;
                             window.close();
                         }
                     }
                     else if (event.key.code == Keyboard::Return || event.key.code == Keyboard::Enter || event.key.code == 57)
                     {
-                        std::cout << "=== ENTER/RETURN/SPACE DETECTADO (código: " << event.key.code << ") ===" << std::endl;
+                        std::cout << "=== ENTER/RETURN/SPACE DETECTADO (codigo: " << event.key.code << ") ===" << std::endl;
                         
                         if (selectedMapIndex >= 0 && selectedMapIndex < static_cast<int>(availableMaps.size())) {
                             selectedMapPath = availableMaps[selectedMapIndex].filename;
@@ -149,14 +149,14 @@ int main()
                         mostrandoSelector = false;
                         
                         if (loadSelectedMap(selectedMapPath, grid, start, goal, player)) {
-                            std::cout << "=== ÉXITO: JUEGO INICIADO ===" << std::endl;
+                            std::cout << "=== EXITO: JUEGO INICIADO ===" << std::endl;
                             animationClock.restart();
                             backgroundClock.restart();
                         } else {
                             std::cout << "=== ERROR: No se pudo cargar ===" << std::endl;
                             if (selectedMapPath != MAP_PATH) {
                                 if (loadSelectedMap(MAP_PATH, grid, start, goal, player)) {
-                                    std::cout << "=== ÉXITO CON MAPA POR DEFECTO ===" << std::endl;
+                                    std::cout << "=== EXITO CON MAPA POR DEFECTO ===" << std::endl;
                                     animationClock.restart();
                                     backgroundClock.restart();
                                 } else {
@@ -172,7 +172,7 @@ int main()
                         std::cout << "=== W/UP DETECTADO ===" << std::endl;
                         if (selectedMapIndex > 0) {
                             selectedMapIndex--;
-                            std::cout << "Nuevo índice: " << selectedMapIndex << std::endl;
+                            std::cout << "Nuevo indice: " << selectedMapIndex << std::endl;
                         }
                     }
                     else if (event.key.code == Keyboard::S || event.key.code == Keyboard::Down)
@@ -180,7 +180,7 @@ int main()
                         std::cout << "=== S/DOWN DETECTADO ===" << std::endl;
                         if (selectedMapIndex < static_cast<int>(availableMaps.size()) - 1) {
                             selectedMapIndex++;
-                            std::cout << "Nuevo índice: " << selectedMapIndex << std::endl;
+                            std::cout << "Nuevo indice: " << selectedMapIndex << std::endl;
                         }
                     }
                     else if (event.key.code == Keyboard::F5)
@@ -199,13 +199,13 @@ int main()
                         mostrandoSelector = false;
                         
                         if (loadSelectedMap(selectedMapPath, grid, start, goal, player)) {
-                            std::cout << "=== ÉXITO: JUEGO INICIADO CON MAPA DEL PORTAPAPELES ===" << std::endl;
+                            std::cout << "=== EXITO: JUEGO INICIADO CON MAPA DEL PORTAPAPELES ===" << std::endl;
                             animationClock.restart();
                             backgroundClock.restart();
                         } else {
                             std::cout << "=== ERROR: No se pudo cargar mapa del portapapeles, usando defecto ===" << std::endl;
                             if (loadSelectedMap(MAP_PATH, grid, start, goal, player)) {
-                                std::cout << "=== ÉXITO CON MAPA POR DEFECTO ===" << std::endl;
+                                std::cout << "=== EXITO CON MAPA POR DEFECTO ===" << std::endl;
                                 animationClock.restart();
                                 backgroundClock.restart();
                             } else {
@@ -237,12 +237,12 @@ int main()
                             pathCells.clear();
                             lastPlayerRow = -1;
                             lastPlayerCol = -1;
-                            std::cout << "Modo manual activado. Usa P para mostrar camino, R para auto-resolución." << std::endl;
+                            std::cout << "Modo manual activado. Usa P para mostrar camino, R para auto-resolucion." << std::endl;
                         }
                     }
                     else if (event.key.code == Keyboard::P && !showVictoryScreen && !autoSolveMode)
                     {
-                        std::cout << "=== MODO VISUALIZACIÓN ACTIVADO ===" << std::endl;
+                        std::cout << "=== MODO VISUALIZACION ACTIVADO ===" << std::endl;
                         PathfindingResult path = findPath(*grid, player->row, player->col, goal->row, goal->col, player->energy);
                        
                         if (path.success && !path.path.empty()) {
@@ -265,12 +265,12 @@ int main()
                             showPathVisualization = false;
                             lastPlayerRow = -1;
                             lastPlayerCol = -1;
-                            std::cout << "No se encontró camino hacia la meta." << std::endl;
+                            std::cout << "No se encontro camino hacia la meta." << std::endl;
                         }
                     }
                     else if (event.key.code == Keyboard::R && !showVictoryScreen)
                     {
-                        std::cout << "=== MODO AUTO-RESOLUCIÓN ACTIVADO ===" << std::endl;
+                        std::cout << "=== MODO AUTO-RESOLUCION ACTIVADO ===" << std::endl;
                         PathfindingResult path = findPath(*grid, player->row, player->col, goal->row, goal->col, player->energy);
                        
                         if (path.success && !path.path.empty()) {
@@ -287,9 +287,9 @@ int main()
                             lastPlayerRow = player->row;
                             lastPlayerCol = player->col;
                            
-                            std::cout << "Auto-resolución iniciada con " << pathCells.size() << " pasos. El jugador se moverá automáticamente." << std::endl;
+                            std::cout << "Auto-resolucion iniciada con " << pathCells.size() << " pasos. El jugador se movera automaticamente." << std::endl;
                         } else {
-                            std::cout << "No se encontró camino para auto-resolución." << std::endl;
+                            std::cout << "No se encontro camino para auto-resolucion." << std::endl;
                         }
                     }
                     else if (event.key.code == Keyboard::T && showPathVisualization && !autoSolveMode && !showVictoryScreen)
@@ -299,7 +299,7 @@ int main()
                             autoSolveMode = true;
                             player->isAutoMoving = true;
                            
-                            std::cout << "Ejecutando camino con " << pathCells.size() << " pasos. El camino permanecerá visible." << std::endl;
+                            std::cout << "Ejecutando camino con " << pathCells.size() << " pasos. El camino permanecera visible." << std::endl;
                         }
                     }
                     else if (!showVictoryScreen && !autoSolveMode && !player->isAutoMoving)
