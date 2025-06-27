@@ -39,28 +39,26 @@ Color getCellColor(CellType type, Clock& animClock) {
         );
     }
     case CellType::START: {
-        float pulse = sin(time * 3.0f) * 0.4f + 0.6f;
+        // Más brillante y reconocible para la entrada con efecto pulsante
+        float pulse = sin(time * 4.0f) * 0.5f + 0.5f;
         return Color(
-            0,
-            static_cast<Uint8>(NEON_GREEN.g * pulse),
-            static_cast<Uint8>(NEON_GREEN.b * pulse)
+            static_cast<Uint8>(20 + 100 * pulse),
+            static_cast<Uint8>(150 + 105 * pulse),
+            static_cast<Uint8>(20 + 100 * pulse)
         );
     }
     case CellType::GOAL: {
-        float pulse = sin(time * 4.0f) * 0.5f + 0.5f;
+        // Más brillante y reconocible para la meta con efecto pulsante
+        float pulse = sin(time * 3.5f) * 0.4f + 0.6f;
         return Color(
-            static_cast<Uint8>(ELECTRIC_YELLOW.r * pulse),
-            static_cast<Uint8>(ELECTRIC_YELLOW.g * pulse),
-            0
+            static_cast<Uint8>(200 + 55 * pulse),
+            static_cast<Uint8>(150 + 105 * pulse),
+            static_cast<Uint8>(0)
         );
     }
     case CellType::ITEM: {
-        float sparkle = sin(time * 6.0f) * 0.4f + 0.6f;
-        return Color(
-            static_cast<Uint8>(NEON_PURPLE.r * sparkle),
-            static_cast<Uint8>(NEON_PURPLE.g * sparkle),
-            static_cast<Uint8>(NEON_PURPLE.b * sparkle)
-        );
+        // Sin parpadeo, color fijo para los items
+        return Color(180, 100, 255);
     }
     case CellType::UP_RIGHT: {
         float flow = sin(time * 5.0f) * 0.3f + 0.7f;
@@ -105,7 +103,7 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
     float windowWidth = static_cast<float>(window.getSize().x);
     float windowHeight = static_cast<float>(window.getSize().y);
     
-    float availableWidth = windowWidth - 400;
+    float availableWidth = windowWidth - 200;
     float availableHeight = windowHeight - 200;
     
     float hexSizeByWidth = availableWidth / (grid.cols() * 1.5f + 0.5f);
@@ -115,21 +113,24 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
     
     hexSize = std::max(8.0f, std::min(hexSize, 25.0f));
     
-    float hexSpacingX = hexSize * 1.5f;             
-    float hexSpacingY = hexSize * sqrt(3.0f);       
+    // Espaciado corregido - más espacio horizontal, menos vertical
+    float hexSpacingX = hexSize * 1.8f;             
+    float hexSpacingY = hexSize * sqrt(3.0f) * 1.02f;       
     
     float gridWidth = (grid.cols() - 1) * hexSpacingX + hexSize * 2;
     float gridHeight = (grid.rows() - 1) * hexSpacingY + hexSize * 2;
-    float offsetX = (availableWidth - gridWidth) / 2.0f + 50.0f;
-    float offsetY = (availableHeight - gridHeight) / 2.0f + 100.0f;
+    
+    // Centrar exactamente como el título - en el centro absoluto de la ventana
+    float offsetX = (windowWidth - gridWidth) / 2.0f;
+    float offsetY = (windowHeight - gridHeight) / 2.0f + 50.0f;
 
     float time = animClock.getElapsedTime().asSeconds();
 
     CircleShape dynamicHex(hexSize, 6);
     dynamicHex.setOrigin(hexSize, hexSize);
     
-    int textSize = static_cast<int>(hexSize * 0.4f);
-    textSize = std::max(6, std::min(textSize, 12));
+    int textSize = static_cast<int>(hexSize * 0.6f);
+    textSize = std::max(10, std::min(textSize, 18));
 
     for (int y = 0; y < grid.rows(); ++y) {
         for (int x = 0; x < grid.cols(); ++x) {
@@ -157,17 +158,70 @@ void drawGrid(RenderWindow& window, const HexGrid& grid,
 
             dynamicHex.setPosition(pos);
             dynamicHex.setFillColor(getCellColor(cell.type, animClock));
-            dynamicHex.setOutlineColor(Color(120, 140, 160));
-            dynamicHex.setOutlineThickness(std::max(0.5f, hexSize * 0.03f));
+            dynamicHex.setOutlineColor(Color(60, 60, 60));
+            dynamicHex.setOutlineThickness(std::max(2.0f, hexSize * 0.08f));
 
             window.draw(dynamicHex);
 
-            if (!isInPath && hexSize > 10) {
+            // Efectos especiales para START y GOAL
+            if (cell.type == CellType::START) {
+                // Efecto de anillo pulsante verde para START
+                float ringPulse = sin(time * 6.0f) * 0.3f + 0.7f;
+                CircleShape startRing(hexSize + 3 * ringPulse, 6);
+                startRing.setOrigin(hexSize + 3 * ringPulse, hexSize + 3 * ringPulse);
+                startRing.setPosition(pos);
+                startRing.setFillColor(Color::Transparent);
+                startRing.setOutlineColor(Color(0, 255, 100, static_cast<Uint8>(150 * ringPulse)));
+                startRing.setOutlineThickness(3);
+                window.draw(startRing);
+                
+                // Brillo interno
+                CircleShape startGlow(hexSize * 0.7f, 6);
+                startGlow.setOrigin(hexSize * 0.7f, hexSize * 0.7f);
+                startGlow.setPosition(pos);
+                startGlow.setFillColor(Color(0, 255, 100, static_cast<Uint8>(80 * ringPulse)));
+                startGlow.setOutlineThickness(0);
+                window.draw(startGlow);
+            }
+            else if (cell.type == CellType::GOAL) {
+                // Efecto de anillo pulsante dorado para GOAL
+                float ringPulse = sin(time * 5.0f) * 0.4f + 0.6f;
+                CircleShape goalRing(hexSize + 4 * ringPulse, 6);
+                goalRing.setOrigin(hexSize + 4 * ringPulse, hexSize + 4 * ringPulse);
+                goalRing.setPosition(pos);
+                goalRing.setFillColor(Color::Transparent);
+                goalRing.setOutlineColor(Color(255, 215, 0, static_cast<Uint8>(180 * ringPulse)));
+                goalRing.setOutlineThickness(4);
+                window.draw(goalRing);
+                
+                // Brillo interno dorado
+                CircleShape goalGlow(hexSize * 0.8f, 6);
+                goalGlow.setOrigin(hexSize * 0.8f, hexSize * 0.8f);
+                goalGlow.setPosition(pos);
+                goalGlow.setFillColor(Color(255, 255, 0, static_cast<Uint8>(100 * ringPulse)));
+                goalGlow.setOutlineThickness(0);
+                window.draw(goalGlow);
+                
+                // Partículas brillantes alrededor
+                for (int p = 0; p < 6; ++p) {
+                    float angle = (p / 6.0f) * 2 * 3.14159f + time * 2.0f;
+                    float radius = hexSize * 1.3f;
+                    float sparkleX = pos.x + cos(angle) * radius;
+                    float sparkleY = pos.y + sin(angle) * radius;
+                    
+                    CircleShape sparkle(2);
+                    sparkle.setPosition(sparkleX - 2, sparkleY - 2);
+                    sparkle.setFillColor(Color(255, 255, 0, static_cast<Uint8>(200 * sin(time * 8.0f + p))));
+                    window.draw(sparkle);
+                }
+            }
+
+            if (!isInPath && hexSize > 8) {
                 text.setString(CellTypeToString(cell.type));
                 text.setCharacterSize(textSize);
                 text.setStyle(Text::Bold);
-                text.setFillColor(Color(30, 30, 50));
-                text.setPosition(pos.x - hexSize * 0.2f, pos.y - hexSize * 0.2f);
+                text.setFillColor(Color(20, 20, 40));
+                text.setPosition(pos.x - hexSize * 0.3f, pos.y - hexSize * 0.3f);
                 window.draw(text);
             }
         }
