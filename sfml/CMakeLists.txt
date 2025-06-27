@@ -36,6 +36,10 @@ add_executable(main
     # Render
     src/render/Renderer.cpp
     src/render/IntroScreen.cpp
+    src/render/HexRenderer.cpp
+    src/render/UIRenderer.cpp
+    src/render/ScreenRenderer.cpp
+    src/render/EffectsRenderer.cpp
  
  )
 
