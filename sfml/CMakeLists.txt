@@ -19,7 +19,7 @@ add_executable(main
     # Utils
     src/utils/MapLoader.cpp
     src/utils/Utils.cpp
-
+    src/utils/MapSelector.cpp
 
     # Model
     src/model/HexGrid.cpp
@@ -31,10 +31,12 @@ add_executable(main
     src/core/TurnSystem.cpp
     src/core/PathFinding.cpp
     src/core/AutoMovement.cpp
-
+    src/core/GameManager.cpp
 
     # Render
     src/render/Renderer.cpp
+    src/render/IntroScreen.cpp
+ 
  )
 
 
